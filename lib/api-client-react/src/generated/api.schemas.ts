@@ -50,7 +50,7 @@ export interface Presence {
      */
   currentSongAlbumArt?: string | null;
   /**
-     * Human-readable time spent in current activity (e.g. "2h 15m")
+     * Human-readable time spent in current activity (e.g. "2h 15m") — legacy, prefer activityStartTime
      * @nullable
      */
   timeSpent?: string | null;
@@ -60,10 +60,20 @@ export interface Presence {
      */
   activityIcon?: string | null;
   /**
-     * Human-readable PC uptime (e.g. "3h 24m")
+     * Human-readable PC uptime (e.g. "3h 24m") — legacy, prefer bootTime
      * @nullable
      */
   uptime?: string | null;
+  /**
+     * ISO 8601 timestamp of when the PC last booted
+     * @nullable
+     */
+  bootTime?: string | null;
+  /**
+     * ISO 8601 timestamp of when the current activity started
+     * @nullable
+     */
+  activityStartTime?: string | null;
   /** ISO 8601 timestamp of last update */
   lastUpdated: string;
 }
@@ -95,5 +105,15 @@ export interface PresenceInput {
   activityIcon?: string | null;
   /** @nullable */
   uptime?: string | null;
+  /**
+     * ISO 8601 timestamp of when the PC last booted
+     * @nullable
+     */
+  bootTime?: string | null;
+  /**
+     * ISO 8601 timestamp of when the current activity started
+     * @nullable
+     */
+  activityStartTime?: string | null;
 }
 

@@ -1,14 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGetPresence, getGetPresenceQueryKey } from "@workspace/api-client-react";
 import { motion } from 'framer-motion';
 
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+function useLiveTime(isoTimestamp: string | null | undefined): string | null {
+  const [display, setDisplay] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isoTimestamp) { setDisplay(null); return; }
+    const update = () => {
+      const elapsed = Math.max(0, Math.floor((Date.now() - new Date(isoTimestamp).getTime()) / 1000));
+      setDisplay(formatDuration(elapsed));
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [isoTimestamp]);
+
+  return display;
+}
+
 export function PresenceCard() {
-  const { data: presence, isLoading } = useGetPresence({ 
-    query: { 
-      refetchInterval: 30000, 
-      queryKey: getGetPresenceQueryKey() 
-    } 
+  const { data: presence, isLoading } = useGetPresence({
+    query: {
+      refetchInterval: 30000,
+      queryKey: getGetPresenceQueryKey()
+    }
   });
+
+  const liveUptime    = useLiveTime((presence as any)?.bootTime);
+  const liveTimeSpent = useLiveTime((presence as any)?.activityStartTime);
+
+  // Fall back to server-formatted strings if timestamps aren't present (old agent)
+  const uptime    = liveUptime    ?? (presence as any)?.uptime    ?? null;
+  const timeSpent = liveTimeSpent ?? (presence as any)?.timeSpent ?? null;
 
   if (isLoading) {
     return (
@@ -26,8 +58,8 @@ export function PresenceCard() {
   }
 
   const status = (presence as any)?.status || 'offline';
-  const isOnline = status === 'online';
-  const isIdle   = status === 'idle';
+  const isOnline  = status === 'online';
+  const isIdle    = status === 'idle';
   const isOffline = status === 'offline';
 
   const statusDotColor = isOnline
@@ -38,8 +70,6 @@ export function PresenceCard() {
 
   const statusLabel = isOnline ? 'online' : isIdle ? 'idle' : 'offline';
 
-  const uptime    = (presence as any)?.uptime    ?? null;
-  const timeSpent = (presence as any)?.timeSpent ?? null;
   const currentApp  = presence?.currentApp  ?? null;
   const currentGame = presence?.currentGame ?? null;
 
@@ -47,7 +77,7 @@ export function PresenceCard() {
   const offlineMessage = "pc's off n js asleep asleep";
 
   return (
-    <motion.div 
+    <motion.div
       className="glass-card p-5 relative overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}

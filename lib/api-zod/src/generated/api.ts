@@ -28,9 +28,11 @@ export const GetPresenceResponse = zod.object({
   "currentSong": zod.string().nullish().describe('Currently listening to song'),
   "currentSongArtist": zod.string().nullish().describe('Artist of current song'),
   "currentSongAlbumArt": zod.string().nullish().describe('URL to album art'),
-  "timeSpent": zod.string().nullish().describe('Human-readable time spent in current activity (e.g. \"2h 15m\")'),
+  "timeSpent": zod.string().nullish().describe('Human-readable time spent in current activity (e.g. \"2h 15m\") — legacy, prefer activityStartTime'),
   "activityIcon": zod.string().nullish().describe('Icon URL or emoji for current activity'),
-  "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\")'),
+  "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\") — legacy, prefer bootTime'),
+  "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
+  "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started'),
   "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update')
 })
 
@@ -48,7 +50,9 @@ export const UpdatePresenceBody = zod.object({
   "currentSongAlbumArt": zod.string().nullish(),
   "timeSpent": zod.string().nullish(),
   "activityIcon": zod.string().nullish(),
-  "uptime": zod.string().nullish()
+  "uptime": zod.string().nullish(),
+  "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
+  "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started')
 })
 
 export const UpdatePresenceResponse = zod.object({
@@ -58,9 +62,11 @@ export const UpdatePresenceResponse = zod.object({
   "currentSong": zod.string().nullish().describe('Currently listening to song'),
   "currentSongArtist": zod.string().nullish().describe('Artist of current song'),
   "currentSongAlbumArt": zod.string().nullish().describe('URL to album art'),
-  "timeSpent": zod.string().nullish().describe('Human-readable time spent in current activity (e.g. \"2h 15m\")'),
+  "timeSpent": zod.string().nullish().describe('Human-readable time spent in current activity (e.g. \"2h 15m\") — legacy, prefer activityStartTime'),
   "activityIcon": zod.string().nullish().describe('Icon URL or emoji for current activity'),
-  "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\")'),
+  "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\") — legacy, prefer bootTime'),
+  "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
+  "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started'),
   "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update')
 })
 
