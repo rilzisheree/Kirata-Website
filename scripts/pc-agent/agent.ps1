@@ -10,6 +10,9 @@ $IntervalSecs         = 30
 $IdleThresholdMinutes = 5
 # ==============================================================
 
+# Force TLS 1.2 (required by most modern HTTPS hosts)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Keep the window open if anything goes wrong
 trap {
     Write-Host ""
