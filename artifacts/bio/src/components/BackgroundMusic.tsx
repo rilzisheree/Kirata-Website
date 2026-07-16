@@ -114,11 +114,11 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
       {/* Icon button */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="glass-pill w-10 h-10 flex items-center justify-center"
+        className="glass-pill w-14 h-14 flex items-center justify-center"
         aria-label="Music volume"
       >
         <VolumeIcon
-          size={16}
+          size={20}
           className={ready ? 'text-cyan-400' : 'text-white/40'}
         />
       </button>
