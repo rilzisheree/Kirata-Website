@@ -8,6 +8,8 @@ import { LanyardPresence as DiscordPresence } from '../components/DiscordPresenc
 import { PresenceCard } from '../components/PresenceCard';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { ProjectsGrid } from '../components/ProjectsGrid';
+import { BackgroundMusic } from '../components/BackgroundMusic';
+import { VisitCounter } from '../components/VisitCounter';
 import { Check, Copy } from 'lucide-react';
 
 import { SiDiscord, SiRoblox, SiSpotify } from 'react-icons/si';
@@ -174,6 +176,9 @@ export default function BioPage() {
           </p>
         </motion.div>
 
+        {/* Background music player + volume */}
+        <BackgroundMusic canAutoplay={entered} />
+
         {/* Cards Grid / Stack */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DiscordPresence />
@@ -185,6 +190,11 @@ export default function BioPage() {
 
         {/* Projects */}
         <ProjectsGrid />
+
+        {/* Visit counter */}
+        <div className="flex justify-center pt-4 pb-2">
+          <VisitCounter />
+        </div>
         
       </Background>
     </>
