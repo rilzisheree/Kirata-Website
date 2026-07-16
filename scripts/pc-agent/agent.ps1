@@ -128,11 +128,17 @@ function Format-TimeSpent([int]$seconds) {
 function Send-Presence($body) {
     try {
         $json   = $body | ConvertTo-Json -Compress
-        $status = curl.exe -s -o NUL -w "%{http_code}" -X PUT $ApiUrl `
+        $tmp    = [System.IO.Path]::GetTempFileName()
+        $status = (curl.exe -s -o $tmp -w "%{http_code}" -X PUT $ApiUrl `
             -H "Content-Type: application/json" `
             -H "Authorization: Bearer $Secret" `
-            --data $json `
-            --max-time 10
+            --data-raw $json `
+            --max-time 10).Trim()
+        if ($status -notmatch "^2") {
+            $detail = Get-Content $tmp -Raw -ErrorAction SilentlyContinue
+            Write-Host "  HTTP $status : $detail" -ForegroundColor DarkRed
+        }
+        Remove-Item $tmp -ErrorAction SilentlyContinue
         return ($status -match "^2")
     } catch {
         Write-Host "  Send failed: $_" -ForegroundColor DarkRed

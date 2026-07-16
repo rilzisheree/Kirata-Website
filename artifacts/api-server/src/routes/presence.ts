@@ -38,6 +38,7 @@ router.get("/presence", (req, res) => {
     res.status(500).json({ error: "Internal presence state error" });
     return;
   }
+  res.set("Cache-Control", "no-store");
   res.json(parsed.data);
 });
 
