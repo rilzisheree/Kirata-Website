@@ -121,13 +121,13 @@ function Format-TimeSpent([int]$seconds) {
 
 function Send-Presence($body) {
     try {
-        $json    = $body | ConvertTo-Json -Compress
-        $headers = @{
-            "Content-Type"  = "application/json"
-            "Authorization" = "Bearer $Secret"
-        }
-        Invoke-RestMethod -Uri $ApiUrl -Method Put -Body $json -Headers $headers -TimeoutSec 10 | Out-Null
-        return $true
+        $json   = $body | ConvertTo-Json -Compress
+        $status = curl.exe -s -o NUL -w "%{http_code}" -X PUT $ApiUrl `
+            -H "Content-Type: application/json" `
+            -H "Authorization: Bearer $Secret" `
+            --data $json `
+            --max-time 10
+        return ($status -match "^2")
     } catch {
         Write-Host "  Send failed: $_" -ForegroundColor DarkRed
         return $false
