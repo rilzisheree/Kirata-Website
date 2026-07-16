@@ -8,17 +8,16 @@ import { PresenceCard } from '../components/PresenceCard';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { ProjectsGrid } from '../components/ProjectsGrid';
 
-import { SiDiscord, SiGithub, SiRoblox, SiX } from 'react-icons/si';
+import { SiDiscord, SiRoblox, SiSpotify } from 'react-icons/si';
 
 const SOCIALS = [
   { icon: SiDiscord, href: '#', label: 'Discord' },
-  { icon: SiGithub, href: '#', label: 'GitHub' },
   { icon: SiRoblox, href: '#', label: 'Roblox' },
-  { icon: SiX, href: '#', label: 'X (Twitter)' },
+  { icon: SiSpotify, href: '#', label: 'Spotify' },
 ];
 
-const BADGES = ["⚡ Builder", "🎮 Gamer", "🌙 Night owl", "🔥 Creator"];
-const PHRASES = ["developer", "gamer", "builder", "night owl"];
+const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
+const PHRASES = ["kinda developer", "chud", "valorant demon"];
 
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
@@ -42,12 +41,12 @@ export default function BioPage() {
           <div className="relative mb-6">
             <div className="absolute inset-[-10px] rounded-full avatar-ring z-0" />
             <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-white/20 relative z-10 bg-black">
-              <img src="/avatar.jpg" alt="axel" className="w-full h-full object-cover" />
+              <img src="/avatar.jpg" alt="kirata" className="w-full h-full object-cover" />
             </div>
           </div>
           
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-2 text-glow-cyan tracking-tight">
-            axel
+            kirata
           </h1>
           
           <div className="text-lg font-mono text-cyan-400 h-8 flex items-center justify-center">
@@ -96,9 +95,9 @@ export default function BioPage() {
         >
           <h3 className="text-sm font-display font-bold text-white/40 uppercase tracking-widest mb-3">About</h3>
           <p className="text-white/80 leading-relaxed">
-            I craft digital experiences that live at the intersection of design and engineering. 
-            Obsessed with performance, fluid animations, and cyber-aesthetics. When I'm not writing code, 
-            you can usually find me exploring new game worlds or curating late-night playlists.
+            i play valorant every single day with 4 other chuds lwkeniunkly carrying them<br /><br />
+            if i dont respond im probably in bed or sum idk<br /><br />
+            dm me multiple times if i dont respond
           </p>
         </motion.div>
 
