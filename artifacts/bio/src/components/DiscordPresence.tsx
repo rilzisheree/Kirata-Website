@@ -1,79 +1,67 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+// Set VITE_DISCORD_ID in your .env file (dev) or Railway env vars (production)
+const DISCORD_ID = import.meta.env.VITE_DISCORD_ID as string | undefined;
+
 export function LanyardPresence() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Use a placeholder ID or let user swap it
-  const discordId = "000000000000000000"; 
-  // Real Example: "156114103033142272" (some public lanyard users if we wanted to test, but we use placeholder)
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    // If it's the exact placeholder, we just mock the data so the UI looks good for the demo.
-    // If user changes it to a real ID, it will fetch.
-    if (discordId === "000000000000000000") {
-       setTimeout(() => {
-         setData({
-            discord_user: {
-              username: "axel",
-              discriminator: "0",
-              avatar: "avatar" // dummy
-            },
-            discord_status: "dnd",
-            activities: [
-               {
-                 name: "Visual Studio Code",
-                 type: 0,
-                 state: "Editing index.css",
-                 details: "Workspace: bio-site"
-               }
-            ],
-            spotify: {
-               song: "Midnight City",
-               artist: "M83",
-               album_art_url: "https://i.scdn.co/image/ab67616d0000b273b4c9ebdc46e01a8ba9656a42"
-            }
-         });
-         setLoading(false);
-       }, 1000);
-       return;
+    if (!DISCORD_ID) {
+      setLoading(false);
+      setError(true);
+      return;
     }
+
+    let cancelled = false;
 
     const fetchPresence = async () => {
       try {
-        const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
+        const res = await fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`);
         const json = await res.json();
-        if (json.success) {
+        if (!cancelled && json.success) {
           setData(json.data);
+          setError(false);
         }
-      } catch (err) {
-        console.error("Failed to fetch Lanyard data", err);
+      } catch {
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchPresence();
     const interval = setInterval(fetchPresence, 30000);
-    return () => clearInterval(interval);
-  }, [discordId]);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
 
   if (loading) {
     return (
       <div className="glass-card p-5 h-full">
         <div className="flex items-center gap-4 animate-pulse">
-           <div className="w-12 h-12 bg-white/10 rounded-full" />
-           <div className="space-y-2 flex-1">
-             <div className="h-4 bg-white/10 rounded w-1/3" />
-             <div className="h-3 bg-white/10 rounded w-1/2" />
-           </div>
+          <div className="w-12 h-12 bg-white/10 rounded-full" />
+          <div className="space-y-2 flex-1">
+            <div className="h-4 bg-white/10 rounded w-1/3" />
+            <div className="h-3 bg-white/10 rounded w-1/2" />
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!data) return null;
+  if (error || !data) {
+    return (
+      <div className="glass-card p-5 h-full flex flex-col justify-center">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-white/20" />
+          <span className="text-xs text-white/30 font-mono">discord not connected</span>
+        </div>
+      </div>
+    );
+  }
 
   const statusColors = {
     online: "bg-green-500",
@@ -101,10 +89,10 @@ export function LanyardPresence() {
       <div className="flex items-center gap-4 relative z-10">
         <div className="relative">
           <div className="w-14 h-14 rounded-full bg-black/40 border border-white/10 flex items-center justify-center overflow-hidden">
-             {data.discord_user.avatar !== "avatar" ? (
-               <img src={`https://cdn.discordapp.com/avatars/${discordId}/${data.discord_user.avatar}.png`} alt="" className="w-full h-full object-cover" />
+             {data.discord_user.avatar ? (
+               <img src={`https://cdn.discordapp.com/avatars/${DISCORD_ID}/${data.discord_user.avatar}.png?size=128`} alt="" className="w-full h-full object-cover" />
              ) : (
-               <span className="text-xl font-bold">A</span>
+               <span className="text-xl font-bold text-white/60">{data.discord_user.username?.[0]?.toUpperCase()}</span>
              )}
           </div>
           <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0a0a16] ${statusColor}`} />
