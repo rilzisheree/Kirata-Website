@@ -136,18 +136,20 @@ function Get-PCUptime {
 
 function Send-Presence($body) {
     try {
-        $json   = $body | ConvertTo-Json -Compress
-        $tmp    = [System.IO.Path]::GetTempFileName()
-        $status = (curl.exe -s -o $tmp -w "%{http_code}" -X PUT $ApiUrl `
+        $json    = $body | ConvertTo-Json -Compress
+        $inFile  = [System.IO.Path]::GetTempFileName()
+        $outFile = [System.IO.Path]::GetTempFileName()
+        [System.IO.File]::WriteAllText($inFile, $json, [System.Text.Encoding]::UTF8)
+        $status = (curl.exe -s -o $outFile -w "%{http_code}" -X PUT $ApiUrl `
             -H "Content-Type: application/json" `
             -H "Authorization: Bearer $Secret" `
-            --data-raw $json `
+            --data "@$inFile" `
             --max-time 10).Trim()
         if ($status -notmatch "^2") {
-            $detail = Get-Content $tmp -Raw -ErrorAction SilentlyContinue
+            $detail = Get-Content $outFile -Raw -ErrorAction SilentlyContinue
             Write-Host "  HTTP $status : $detail" -ForegroundColor DarkRed
         }
-        Remove-Item $tmp -ErrorAction SilentlyContinue
+        Remove-Item $inFile, $outFile -ErrorAction SilentlyContinue
         return ($status -match "^2")
     } catch {
         Write-Host "  Send failed: $_" -ForegroundColor DarkRed
