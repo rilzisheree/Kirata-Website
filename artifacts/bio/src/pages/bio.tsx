@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Background } from '../components/Background';
 import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
@@ -7,25 +7,41 @@ import { LanyardPresence as DiscordPresence } from '../components/DiscordPresenc
 import { PresenceCard } from '../components/PresenceCard';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { ProjectsGrid } from '../components/ProjectsGrid';
+import { Check, Copy } from 'lucide-react';
 
 import { SiDiscord, SiRoblox, SiSpotify } from 'react-icons/si';
 
-const SOCIALS = [
-  { icon: SiDiscord, href: '#', label: 'Discord' },
-  { icon: SiRoblox, href: '#', label: 'Roblox' },
-  { icon: SiSpotify, href: '#', label: 'Spotify' },
-];
-
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["kinda developer", "chud", "valorant demon"];
+const DISCORD_USERNAME = "vkirata";
 
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
+  const [discordOpen, setDiscordOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
 
-  // Force dark mode on html element
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
+
+  // Close popup when clicking outside
+  useEffect(() => {
+    if (!discordOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setDiscordOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [discordOpen]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(DISCORD_USERNAME);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <>
@@ -68,21 +84,75 @@ export default function BioPage() {
           </div>
 
           <div className="flex justify-center gap-4 mt-8">
-            {SOCIALS.map((social, i) => (
-              <motion.a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noreferrer"
-                className="glass-pill w-12 h-12 text-white/70 hover:text-white"
+            {/* Discord — shows popup with username + copy */}
+            <div className="relative" ref={popupRef}>
+              <motion.button
+                data-testid="button-discord"
+                onClick={() => setDiscordOpen(v => !v)}
+                className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
-                aria-label={social.label}
+                transition={{ delay: 0.5 }}
+                aria-label="Discord"
               >
-                <social.icon size={20} />
-              </motion.a>
-            ))}
+                <SiDiscord size={20} />
+              </motion.button>
+
+              <AnimatePresence>
+                {discordOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-14 left-1/2 -translate-x-1/2 z-50 min-w-[160px]"
+                  >
+                    <div className="glass-card px-4 py-3 flex items-center gap-3 border border-white/10">
+                      <SiDiscord size={16} className="text-[#5865F2] shrink-0" />
+                      <span className="text-sm font-mono text-white/90 select-all">{DISCORD_USERNAME}</span>
+                      <button
+                        data-testid="button-copy-discord"
+                        onClick={handleCopy}
+                        className="ml-auto text-white/50 hover:text-white transition-colors"
+                        aria-label="Copy username"
+                      >
+                        {copied ? <Check size={14} className="text-cyan-400" /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Roblox */}
+            <motion.a
+              data-testid="link-roblox"
+              href="https://www.roblox.com/users/1872507151/profile"
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              aria-label="Roblox"
+            >
+              <SiRoblox size={20} />
+            </motion.a>
+
+            {/* Spotify */}
+            <motion.a
+              data-testid="link-spotify"
+              href="https://open.spotify.com/user/k3mx457gl6spsenev0uxsfkw3?si=4529a64f8f1545aa"
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              aria-label="Spotify"
+            >
+              <SiSpotify size={20} />
+            </motion.a>
           </div>
         </motion.div>
 
