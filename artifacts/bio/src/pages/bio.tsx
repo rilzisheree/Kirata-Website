@@ -69,6 +69,8 @@ export default function BioPage() {
             kirata
           </h1>
           
+          <p className="text-sm text-white/40 italic mt-1 mb-1">"Sorry, wish we could go to the moon together"</p>
+
           <div className="text-lg font-mono text-cyan-400 h-8 flex items-center justify-center">
             {'>'} <span className="ml-2">{typedText}</span><span className="animate-pulse ml-1">_</span>
           </div>
