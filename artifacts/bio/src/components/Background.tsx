@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useMousePosition } from '../hooks/use-mouse';
-import { motion } from 'framer-motion';
 
 const Particles = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,7 +21,6 @@ const Particles = () => {
     window.addEventListener('resize', resize);
     resize();
 
-    // Initialize particles
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
@@ -42,11 +39,7 @@ const Particles = () => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
         ctx.fill();
-
-        // Move up
         p.y -= p.speed;
-        
-        // Wrap around
         if (p.y < 0) {
           p.y = canvas.height;
           p.x = Math.random() * canvas.width;
@@ -68,18 +61,12 @@ const Particles = () => {
 };
 
 export function Background({ children }: { children: React.ReactNode }) {
-  const { x, y } = useMousePosition();
-  
-  // Subtle parallax for the main container
-  const xOffset = typeof window !== 'undefined' ? (x / window.innerWidth - 0.5) * 16 : 0;
-  const yOffset = typeof window !== 'undefined' ? (y / window.innerHeight - 0.5) * 16 : 0;
-
   return (
     <div className="relative min-h-[100dvh] w-full overflow-hidden bg-background">
-      {/* Base Gradient — cyan tinted */}
+      {/* Base Gradient */}
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-950/40 via-background to-background pointer-events-none" />
       
-      {/* Ambient blobs — cyan only, reduced blur for perf */}
+      {/* Ambient blobs */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-5%] left-[-5%] w-[380px] h-[380px] rounded-full bg-cyan-500/10 blur-[70px] blob-animate" />
         <div className="absolute bottom-[-5%] right-[-5%] w-[420px] h-[420px] rounded-full bg-teal-500/8 blur-[80px] blob-animate" style={{ animationDelay: '-10s' }} />
@@ -87,15 +74,11 @@ export function Background({ children }: { children: React.ReactNode }) {
 
       <Particles />
 
-      <motion.div 
-        className="relative z-10 w-full flex justify-center py-20 px-4 sm:px-6"
-        animate={{ x: xOffset, y: yOffset }}
-        transition={{ type: "tween", ease: "linear", duration: 0.08 }}
-      >
+      <div className="relative z-10 w-full flex justify-center py-20 px-4 sm:px-6">
         <div className="w-full max-w-2xl space-y-8 pb-32">
           {children}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

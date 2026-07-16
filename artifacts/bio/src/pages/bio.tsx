@@ -5,7 +5,6 @@ import { Background } from '../components/Background';
 import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
 import { LanyardPresence as DiscordPresence } from '../components/DiscordPresence';
-import { PresenceCard } from '../components/PresenceCard';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
@@ -179,10 +178,7 @@ export default function BioPage() {
         {/* Cards Grid / Stack */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DiscordPresence />
-          <div className="flex flex-col gap-4">
-            <PresenceCard />
-            <MusicPlayer canAutoplay={entered} />
-          </div>
+          <MusicPlayer canAutoplay={entered} />
         </div>
 
         {/* Visit counter */}
