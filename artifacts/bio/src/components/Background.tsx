@@ -12,7 +12,7 @@ const Particles = () => {
     if (!ctx) return;
 
     let particles: { x: number, y: number, speed: number, size: number, opacity: number }[] = [];
-    const particleCount = 40;
+    const particleCount = 18;
     let animationFrameId: number;
 
     const resize = () => {
@@ -76,28 +76,21 @@ export function Background({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative min-h-[100dvh] w-full overflow-hidden bg-background">
-      {/* Base Gradient */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-background to-background pointer-events-none" />
+      {/* Base Gradient — cyan tinted */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-950/40 via-background to-background pointer-events-none" />
       
-      {/* Animated Blobs */}
+      {/* Ambient blobs — cyan only, reduced blur for perf */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-700/20 blur-[100px] blob-animate" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-cyan-700/10 blur-[120px] blob-animate" style={{ animationDelay: '-10s' }} />
-        <div className="absolute top-[40%] left-[60%] w-[400px] h-[400px] rounded-full bg-blue-700/15 blur-[100px] blob-animate" style={{ animationDelay: '-5s' }} />
+        <div className="absolute top-[-5%] left-[-5%] w-[380px] h-[380px] rounded-full bg-cyan-500/10 blur-[70px] blob-animate" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[420px] h-[420px] rounded-full bg-teal-500/8 blur-[80px] blob-animate" style={{ animationDelay: '-10s' }} />
       </div>
 
       <Particles />
-      
-      {/* Subtle Noise Texture Overlay */}
-      <div 
-        className="fixed inset-0 z-[1] opacity-[0.015] pointer-events-none mix-blend-overlay"
-        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
-      />
 
       <motion.div 
         className="relative z-10 w-full flex justify-center py-20 px-4 sm:px-6"
         animate={{ x: xOffset, y: yOffset }}
-        transition={{ type: "spring", stiffness: 50, damping: 20 }}
+        transition={{ type: "tween", ease: "linear", duration: 0.08 }}
       >
         <div className="w-full max-w-2xl space-y-8 pb-32">
           {children}

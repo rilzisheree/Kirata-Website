@@ -51,32 +51,33 @@
 }
 
 :root {
-  --background: 240 53% 4%; /* #050510 */
+  /* Deep dark teal base — not navy, not galaxy */
+  --background: 192 40% 4%;
   --foreground: 0 0% 100%;
   
-  --border: 0 0% 100% / 0.1;
-  --input: 0 0% 100% / 0.1;
-  --ring: 190 96% 41%; /* cyan */
+  --border: 0 0% 100% / 0.08;
+  --input: 0 0% 100% / 0.08;
+  --ring: 185 90% 45%;
   
-  --card: 240 53% 4%;
+  --card: 192 40% 4%;
   --card-foreground: 0 0% 100%;
-  --card-border: 0 0% 100% / 0.1;
+  --card-border: 0 0% 100% / 0.08;
   
-  --popover: 240 53% 4%;
+  --popover: 192 40% 4%;
   --popover-foreground: 0 0% 100%;
-  --popover-border: 0 0% 100% / 0.1;
+  --popover-border: 0 0% 100% / 0.08;
   
-  --primary: 190 96% 41%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 185 90% 45%;       /* cyan */
+  --primary-foreground: 0 0% 0%;
   
-  --secondary: 279 82% 39%; /* purple */
+  --secondary: 175 70% 35%;     /* teal — replaces purple */
   --secondary-foreground: 0 0% 100%;
   
-  --muted: 0 0% 100% / 0.1;
-  --muted-foreground: 0 0% 100% / 0.6;
+  --muted: 0 0% 100% / 0.08;
+  --muted-foreground: 0 0% 100% / 0.55;
   
-  --accent: 217 91% 60%; /* electric blue */
-  --accent-foreground: 0 0% 100%;
+  --accent: 185 90% 45%;
+  --accent-foreground: 0 0% 0%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
@@ -88,32 +89,32 @@
 }
 
 .dark {
-  --background: 240 53% 4%; /* #050510 */
+  --background: 192 40% 4%;
   --foreground: 0 0% 100%;
   
-  --border: 0 0% 100% / 0.1;
-  --input: 0 0% 100% / 0.1;
-  --ring: 190 96% 41%; /* cyan */
+  --border: 0 0% 100% / 0.08;
+  --input: 0 0% 100% / 0.08;
+  --ring: 185 90% 45%;
   
-  --card: 240 53% 4%;
+  --card: 192 40% 4%;
   --card-foreground: 0 0% 100%;
-  --card-border: 0 0% 100% / 0.1;
+  --card-border: 0 0% 100% / 0.08;
   
-  --popover: 240 53% 4%;
+  --popover: 192 40% 4%;
   --popover-foreground: 0 0% 100%;
-  --popover-border: 0 0% 100% / 0.1;
+  --popover-border: 0 0% 100% / 0.08;
   
-  --primary: 190 96% 41%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 185 90% 45%;
+  --primary-foreground: 0 0% 0%;
   
-  --secondary: 279 82% 39%; /* purple */
+  --secondary: 175 70% 35%;
   --secondary-foreground: 0 0% 100%;
   
-  --muted: 0 0% 100% / 0.1;
-  --muted-foreground: 0 0% 100% / 0.6;
+  --muted: 0 0% 100% / 0.08;
+  --muted-foreground: 0 0% 100% / 0.55;
   
-  --accent: 217 91% 60%; /* electric blue */
-  --accent-foreground: 0 0% 100%;
+  --accent: 185 90% 45%;
+  --accent-foreground: 0 0% 0%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
@@ -132,28 +133,29 @@
 /* Custom Utilities for Cyber Vibe */
 @layer utilities {
   .glass-card {
-    @apply bg-white/[0.03] backdrop-blur-[20px] border border-white/10 rounded-2xl shadow-xl transition-all duration-300;
+    @apply bg-white/[0.04] backdrop-blur-[10px] border border-cyan-500/10 rounded-2xl shadow-lg transition-all duration-200;
   }
   .glass-card:hover {
-    @apply bg-white/[0.05] border-white/20 -translate-y-1;
-    box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.15);
+    @apply bg-white/[0.06] border-cyan-400/20 -translate-y-1;
+    box-shadow: 0 8px 32px -8px rgba(6, 182, 212, 0.2);
   }
   .glass-pill {
-    @apply bg-white/[0.05] backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center transition-all duration-300;
+    @apply bg-white/[0.05] backdrop-blur-[8px] border border-cyan-500/10 rounded-full flex items-center justify-center transition-all duration-200;
   }
   .glass-pill:hover {
-    @apply bg-white/[0.1] border-white/20 scale-105;
+    @apply bg-cyan-500/10 border-cyan-400/25 scale-105;
   }
   
   .text-glow {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
   }
   .text-glow-cyan {
-    text-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+    text-shadow: 0 0 24px rgba(6, 182, 212, 0.5);
   }
   
   .blob-animate {
-    animation: blob-drift 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    animation: blob-drift 25s infinite alternate ease-in-out;
+    will-change: transform;
   }
   
   .float-animate {
@@ -162,10 +164,9 @@
 }
 
 @keyframes blob-drift {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-  33% { transform: translate(30px, -50px) scale(1.1) rotate(10deg); }
-  66% { transform: translate(-20px, 20px) scale(0.9) rotate(-5deg); }
-  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(20px, -30px) scale(1.05); }
+  100% { transform: translate(-10px, 15px) scale(0.97); }
 }
 
 @keyframes float {
