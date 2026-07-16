@@ -100,14 +100,20 @@ $Apps = @{
 
 function Get-ForegroundProcessName {
     try {
-        $hwnd = [BioAgent.Win32]::GetForegroundWindow()
-        $pid  = 0
-        [BioAgent.Win32]::GetWindowThreadProcessId($hwnd, [ref]$pid) | Out-Null
-        if ($pid -eq 0) { return $null }
-        return (Get-Process -Id $pid -ErrorAction SilentlyContinue).ProcessName
-    } catch {
-        return $null
-    }
+        $hwnd    = [BioAgent.Win32]::GetForegroundWindow()
+        $procId  = [uint32]0
+        [BioAgent.Win32]::GetWindowThreadProcessId($hwnd, [ref]$procId) | Out-Null
+        if ($procId -eq 0) { throw "no pid" }
+        $proc = Get-Process -Id ([int]$procId) -ErrorAction SilentlyContinue
+        if ($proc) { return $proc.ProcessName }
+    } catch {}
+
+    # Fallback: pick the windowed process with the most CPU time
+    $topProc = Get-Process |
+        Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero -and $_.MainWindowTitle -ne '' } |
+        Sort-Object CPU -Descending |
+        Select-Object -First 1
+    return $topProc.ProcessName
 }
 
 function Format-TimeSpent([int]$seconds) {

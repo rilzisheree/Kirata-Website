@@ -5,4 +5,4 @@ generated = []
 id = "JmVP-wBJJv7gn6ME2HuW8"
 uri = "file://scripts/pc-agent/agent.ps1"
 type = "unspecified"
-title = "PC Presence Agent — curl fix"
+title = "PC Presence Agent — process fix"
