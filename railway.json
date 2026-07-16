@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm install -g pnpm && pnpm install && BASE_PATH=/ pnpm --filter @workspace/bio run build"
+  },
+  "deploy": {
+    "startCommand": "BASE_PATH=/ pnpm --filter @workspace/bio run serve",
+    "restartPolicyType": "ON_FAILURE",
+    "healthcheckPath": "/"
+  }
+}

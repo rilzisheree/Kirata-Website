@@ -7,12 +7,11 @@ import { useTypingEffect } from '../hooks/use-typing';
 import { LanyardPresence as DiscordPresence } from '../components/DiscordPresence';
 import { PresenceCard } from '../components/PresenceCard';
 import { MusicPlayer } from '../components/MusicPlayer';
-import { ProjectsGrid } from '../components/ProjectsGrid';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
 import { Check, Copy } from 'lucide-react';
 
-import { SiDiscord, SiRoblox, SiSpotify } from 'react-icons/si';
+import { DiscordIcon, RobloxIcon, SpotifyIcon } from '../components/SocialIcons';
 
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["kinda developer", "chud", "valorant demon"];
@@ -101,7 +100,7 @@ export default function BioPage() {
                 transition={{ delay: 0.5 }}
                 aria-label="Discord"
               >
-                <SiDiscord size={20} />
+                <DiscordIcon size={20} />
               </motion.button>
 
               <AnimatePresence>
@@ -114,7 +113,7 @@ export default function BioPage() {
                     className="absolute top-14 left-1/2 -translate-x-1/2 z-50 min-w-[160px]"
                   >
                     <div className="glass-card px-4 py-3 flex items-center gap-3 border border-white/10">
-                      <SiDiscord size={16} className="text-[#5865F2] shrink-0" />
+                      <DiscordIcon size={16} className="text-[#5865F2] shrink-0" />
                       <span className="text-sm font-mono text-white/90 select-all">{DISCORD_USERNAME}</span>
                       <button
                         data-testid="button-copy-discord"
@@ -142,7 +141,7 @@ export default function BioPage() {
               transition={{ delay: 0.6 }}
               aria-label="Roblox"
             >
-              <SiRoblox size={20} />
+              <RobloxIcon size={20} />
             </motion.a>
 
             {/* Spotify */}
@@ -157,7 +156,7 @@ export default function BioPage() {
               transition={{ delay: 0.7 }}
               aria-label="Spotify"
             >
-              <SiSpotify size={20} />
+              <SpotifyIcon size={20} />
             </motion.a>
           </div>
         </motion.div>
@@ -185,9 +184,6 @@ export default function BioPage() {
             <MusicPlayer canAutoplay={entered} />
           </div>
         </div>
-
-        {/* Projects */}
-        <ProjectsGrid />
 
         {/* Visit counter */}
         <div className="flex justify-center pt-4 pb-2">
