@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const PLAYLIST_ID = '0hFVWQVs7uo6SYx82xT5OV';
-const EMBED_URL = `https://open.spotify.com/embed/playlist/${PLAYLIST_ID}?utm_source=generator&theme=0&autoplay=1`;
+// autoplay=1, shuffle disabled so it plays track 1 → last in order
+const EMBED_URL = `https://open.spotify.com/embed/playlist/${PLAYLIST_ID}?utm_source=generator&theme=0&autoplay=1&shuffle=false`;
 
-export function MusicPlayer() {
+interface MusicPlayerProps {
+  canAutoplay?: boolean;
+}
+
+export function MusicPlayer({ canAutoplay = false }: MusicPlayerProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -32,27 +37,29 @@ export function MusicPlayer() {
         </div>
       </div>
 
-      {/* Spotify embed */}
+      {/* Spotify embed — only mounted after user gesture so autoplay is permitted */}
       <div className="relative" style={{ height: 232 }}>
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02]">
             <span className="text-xs font-mono text-white/25 animate-pulse">loading playlist...</span>
           </div>
         )}
-        <iframe
-          src={EMBED_URL}
-          width="100%"
-          height="232"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="eager"
-          onLoad={() => setLoaded(true)}
-          style={{
-            border: 'none',
-            display: 'block',
-            opacity: loaded ? 1 : 0,
-            transition: 'opacity 0.4s ease',
-          }}
-        />
+        {canAutoplay && (
+          <iframe
+            src={EMBED_URL}
+            width="100%"
+            height="232"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="eager"
+            onLoad={() => setLoaded(true)}
+            style={{
+              border: 'none',
+              display: 'block',
+              opacity: loaded ? 1 : 0,
+              transition: 'opacity 0.4s ease',
+            }}
+          />
+        )}
       </div>
 
       <style>{`

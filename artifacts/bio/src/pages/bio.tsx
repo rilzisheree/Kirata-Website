@@ -179,7 +179,7 @@ export default function BioPage() {
           <DiscordPresence />
           <div className="flex flex-col gap-4">
             <PresenceCard />
-            <MusicPlayer />
+            <MusicPlayer canAutoplay={entered} />
           </div>
         </div>
 
