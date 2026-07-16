@@ -1,7 +1,9 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "pnpm install && pnpm --filter @workspace/bio run build && pnpm --filter @workspace/api-server run build"
+  },
   "deploy": {
-    "buildCommand": "pnpm install && pnpm --filter @workspace/bio run build && pnpm --filter @workspace/api-server run build",
     "startCommand": "NODE_ENV=production node --enable-source-maps artifacts/api-server/dist/index.mjs",
     "restartPolicyType": "ON_FAILURE",
     "healthcheckPath": "/api/healthz"
