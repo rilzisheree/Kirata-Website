@@ -188,7 +188,7 @@ while ($true) {
     $statusColor = if ($status -eq "online") { "Green" } elseif ($status -eq "idle") { "Yellow" } else { "Gray" }
     $activity    = if ($gameName) { "🎮 $gameName" } elseif ($appName) { "💻 $appName" } else { "(nothing)" }
     $ts          = Get-Date -Format "HH:mm:ss"
-    $sent        = if ($ok) { "✓" } else { "✗" }
+    $sent        = if ($ok) { "OK" } else { "!!" }
     Write-Host "[$ts] $sent  $status — $activity$(if ($timeSpent) { "  ($timeSpent)" })" -ForegroundColor $statusColor
 
     Start-Sleep -Seconds $IntervalSecs
