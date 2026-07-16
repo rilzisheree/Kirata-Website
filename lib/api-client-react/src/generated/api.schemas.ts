@@ -59,6 +59,11 @@ export interface Presence {
      * @nullable
      */
   activityIcon?: string | null;
+  /**
+     * Human-readable PC uptime (e.g. "3h 24m")
+     * @nullable
+     */
+  uptime?: string | null;
   /** ISO 8601 timestamp of last update */
   lastUpdated: string;
 }
@@ -88,5 +93,7 @@ export interface PresenceInput {
   timeSpent?: string | null;
   /** @nullable */
   activityIcon?: string | null;
+  /** @nullable */
+  uptime?: string | null;
 }
 

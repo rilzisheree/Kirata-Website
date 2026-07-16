@@ -1,6 +1,5 @@
 import React from 'react';
 import { useGetPresence, getGetPresenceQueryKey } from "@workspace/api-client-react";
-import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 
 export function PresenceCard() {
@@ -26,22 +25,26 @@ export function PresenceCard() {
     );
   }
 
-  // Graceful fallback if API fails or returns nothing yet
-  const status = presence?.status || 'offline';
+  const status = (presence as any)?.status || 'offline';
   const isOnline = status === 'online';
-  const isIdle = status === 'idle';
-  
-  const statusColor = isOnline
+  const isIdle   = status === 'idle';
+  const isOffline = status === 'offline';
+
+  const statusDotColor = isOnline
     ? 'bg-green-500'
     : isIdle
-    ? 'bg-yellow-500'
+    ? 'bg-yellow-400'
     : 'bg-gray-500';
 
-  const statusLabel = isOnline ? 'Online' : isIdle ? 'Idle' : 'Offline';
+  const statusLabel = isOnline ? 'online' : isIdle ? 'idle' : 'offline';
 
-  const timeAgo = presence?.lastUpdated 
-    ? formatDistanceToNow(new Date(presence.lastUpdated), { addSuffix: true }) 
-    : null;
+  const uptime    = (presence as any)?.uptime    ?? null;
+  const timeSpent = (presence as any)?.timeSpent ?? null;
+  const currentApp  = presence?.currentApp  ?? null;
+  const currentGame = presence?.currentGame ?? null;
+
+  const idleMessage    = "prob asleep or doing fuck all";
+  const offlineMessage = "pc's off n js asleep asleep";
 
   return (
     <motion.div 
@@ -63,51 +66,52 @@ export function PresenceCard() {
           <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-lg">
             💻
           </div>
-          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a16] ${statusColor}`} />
+          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a16] ${statusDotColor}`} />
         </div>
-        <div>
-          <p className="font-bold text-white tracking-wide text-sm leading-tight">{statusLabel}</p>
-          <p className="text-xs text-white/60 font-mono mt-0.5">PC Presence</p>
+
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-white tracking-wide text-sm leading-tight">PC Presence</p>
+          <p className="text-xs text-white/60 font-mono mt-0.5">Kirata's PC</p>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColor}`} />
+            <span className="text-[11px] text-white/50 font-mono">{statusLabel}</span>
+          </div>
         </div>
-        {timeAgo && (
-          <div className="ml-auto text-[10px] text-white/35 font-mono text-right shrink-0">
-            {timeAgo.toUpperCase()}
+
+        {uptime && isOnline && (
+          <div className="text-right shrink-0">
+            <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">uptime</p>
+            <p className="text-xs text-white/50 font-mono">{uptime}</p>
           </div>
         )}
       </div>
 
-      {/* Activity details */}
-      {!presence?.currentApp && !presence?.currentGame ? (
-        <div className="pt-3 border-t border-white/5 relative z-10">
-          <span className="text-xs text-white/35 font-mono">
-            {status === 'offline' ? 'pc is off or agent not running' : 'doing nothing probably'}
-          </span>
-        </div>
-      ) : (
-        <div className="pt-3 border-t border-white/5 relative z-10 space-y-1.5">
-          {presence.currentGame && (
-            <div className="flex items-baseline gap-2">
-              <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
-              <span className="text-sm font-medium text-white truncate">{presence.currentGame}</span>
-              {presence.timeSpent && (
-                <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{presence.timeSpent}</span>
-              )}
-            </div>
-          )}
-
-          {presence.currentApp && !presence.currentGame && (
-            <div className="flex items-baseline gap-2">
-              <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
-              <span className="text-sm font-medium text-white truncate">
-                {presence.activityIcon ? `${presence.activityIcon} ` : ''}{presence.currentApp}
-              </span>
-              {presence.timeSpent && (
-                <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{presence.timeSpent}</span>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Activity / status details */}
+      <div className="pt-3 border-t border-white/5 relative z-10 space-y-1.5">
+        {isOffline ? (
+          <span className="text-xs text-white/35 font-mono">{offlineMessage}</span>
+        ) : isIdle ? (
+          <span className="text-xs text-white/35 font-mono">{idleMessage}</span>
+        ) : currentGame ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
+            <span className="text-sm font-medium text-white truncate">{currentGame}</span>
+            {timeSpent && (
+              <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+            )}
+          </div>
+        ) : currentApp ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
+            <span className="text-sm font-medium text-white truncate">{currentApp}</span>
+            {timeSpent && (
+              <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-white/35 font-mono">doing nothing probably</span>
+        )}
+      </div>
     </motion.div>
   );
 }

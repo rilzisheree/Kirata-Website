@@ -23,4 +23,6 @@ export interface PresenceInput {
   timeSpent?: string | null;
   /** @nullable */
   activityIcon?: string | null;
+  /** @nullable */
+  uptime?: string | null;
 }

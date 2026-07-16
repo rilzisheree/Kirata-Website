@@ -17,6 +17,7 @@ let presenceStore: {
   currentSongAlbumArt: string | null;
   timeSpent: string | null;
   activityIcon: string | null;
+  uptime: string | null;
   lastUpdated: string;
 } = {
   status: "offline",
@@ -27,6 +28,7 @@ let presenceStore: {
   currentSongAlbumArt: null,
   timeSpent: null,
   activityIcon: null,
+  uptime: null,
   lastUpdated: new Date().toISOString(),
 };
 
@@ -70,6 +72,7 @@ router.put("/presence", (req, res) => {
     currentSongAlbumArt: parsed.data.currentSongAlbumArt ?? null,
     timeSpent: parsed.data.timeSpent ?? null,
     activityIcon: parsed.data.activityIcon ?? null,
+    uptime: (parsed.data as any).uptime ?? null,
     lastUpdated: new Date().toISOString(),
   };
 

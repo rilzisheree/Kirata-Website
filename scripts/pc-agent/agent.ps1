@@ -116,13 +116,22 @@ function Get-ForegroundProcessName {
     return $topProc.ProcessName
 }
 
-function Format-TimeSpent([int]$seconds) {
+function Format-Duration([int]$seconds) {
     if ($seconds -lt 60)   { return "${seconds}s" }
     if ($seconds -lt 3600) { $m = [int]($seconds / 60); return "${m}m" }
     $h = [int]($seconds / 3600)
     $m = [int](($seconds % 3600) / 60)
     if ($m -eq 0) { return "${h}h" }
     return "${h}h ${m}m"
+}
+
+function Get-PCUptime {
+    try {
+        $boot = (Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop).LastBootUpTime
+        return Format-Duration ([int]((Get-Date) - $boot).TotalSeconds)
+    } catch {
+        return $null
+    }
 }
 
 function Send-Presence($body) {
@@ -180,7 +189,8 @@ while ($true) {
         $activityStart   = Get-Date
     }
     $elapsed   = if ($activityStart) { [int]((Get-Date) - $activityStart).TotalSeconds } else { 0 }
-    $timeSpent = if ($elapsed -ge 60) { Format-TimeSpent $elapsed } else { $null }
+    $timeSpent = if ($elapsed -ge 5) { Format-Duration $elapsed } else { $null }
+    $uptime    = Get-PCUptime
 
     $status = if ($isIdle) { "idle" } elseif ($procName) { "online" } else { "offline" }
 
@@ -189,6 +199,7 @@ while ($true) {
         currentGame = $gameName
         currentApp  = $appName
         timeSpent   = $timeSpent
+        uptime      = $uptime
     }
 
     $ok = Send-Presence $payload
