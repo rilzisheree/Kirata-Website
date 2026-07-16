@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+cmds = ["npm install -g pnpm@10"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["BASE_PATH=/ pnpm --filter @workspace/bio run build"]
+
+[start]
+cmd = "BASE_PATH=/ pnpm --filter @workspace/bio run serve"
