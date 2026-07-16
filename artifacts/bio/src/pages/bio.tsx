@@ -176,9 +176,6 @@ export default function BioPage() {
           </p>
         </motion.div>
 
-        {/* Background music player + volume */}
-        <BackgroundMusic canAutoplay={entered} />
-
         {/* Cards Grid / Stack */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DiscordPresence />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Music2, Volume2, VolumeX } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Volume2, VolumeX, Volume1 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const VIDEO_ID = 'KvMY1uzSC1E'; // "I Really Want to Stay at Your House" — Rosa Walton & Hallie Kazmer
 
@@ -21,6 +21,8 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
   const [volume, setVolume] = useState(25);
   const [ready, setReady] = useState(false);
   const readyRef = useRef(false);
+  const [open, setOpen] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!canAutoplay) return;
@@ -73,6 +75,18 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     };
   }, [canAutoplay]);
 
+  // close popup when clicking outside
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     setVolume(val);
@@ -83,59 +97,58 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
 
   if (!canAutoplay) return null;
 
+  const VolumeIcon = volume === 0 ? VolumeX : volume < 50 ? Volume1 : Volume2;
+
   return (
-    <motion.div
-      className="glass-card px-5 py-4 flex items-center gap-4"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.5 }}
-    >
+    <div className="fixed top-4 right-4 z-50" ref={popupRef}>
+      {/* icon button */}
+      <motion.button
+        onClick={() => setOpen(v => !v)}
+        className="glass-pill w-10 h-10 text-white/60 hover:text-white flex items-center justify-center"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+        aria-label="Music volume"
+      >
+        <VolumeIcon size={16} className={ready ? 'text-cyan-400' : 'text-white/40'} />
+      </motion.button>
+
+      {/* volume popup */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-12 right-0 glass-card px-4 py-3 min-w-[200px] border border-white/10"
+          >
+            <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-2">
+              i really want to stay at your house
+            </div>
+            <div className="flex items-center gap-3">
+              <VolumeIcon size={13} className="text-cyan-400 shrink-0" />
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={volume}
+                onChange={handleVolume}
+                className="w-full cursor-pointer accent-cyan-400"
+                title="Volume"
+              />
+              <span className="text-[10px] font-mono text-white/40 w-6 text-right shrink-0">
+                {volume}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* invisible YouTube mount point */}
       <div style={{ position: 'fixed', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
         <div ref={mountNodeRef} />
       </div>
-
-      {/* waveform / icon */}
-      <div className="flex items-end gap-[3px] h-4 shrink-0">
-        {[0.4, 0.7, 1, 0.6, 0.8].map((d, i) => (
-          <span
-            key={i}
-            className="w-[3px] rounded-full bg-cyan-500/70"
-            style={{
-              height: '100%',
-              animation: ready ? `waveBar 1s ease-in-out ${d * 0.3}s infinite alternate` : 'none',
-              transform: ready ? undefined : 'scaleY(0.3)',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* label */}
-      <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest leading-none mb-0.5">
-          {ready ? 'now playing' : 'loading…'}
-        </div>
-        <div className="text-xs font-medium text-white/80 truncate">
-          i really want to stay at your house
-        </div>
-      </div>
-
-      {/* volume */}
-      <div className="flex items-center gap-2 shrink-0">
-        {volume === 0
-          ? <VolumeX size={13} className="text-white/40" />
-          : <Volume2 size={13} className="text-cyan-400" />
-        }
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={volume}
-          onChange={handleVolume}
-          className="w-20 cursor-pointer accent-cyan-400"
-          title="Volume"
-        />
-      </div>
-    </motion.div>
+    </div>
   );
 }
