@@ -10,7 +10,7 @@ const Particles = () => {
     if (!ctx) return;
 
     let particles: { x: number, y: number, speed: number, size: number, opacity: number }[] = [];
-    const particleCount = 18;
+    const particleCount = 60;
     let animationFrameId: number;
 
     const resize = () => {
