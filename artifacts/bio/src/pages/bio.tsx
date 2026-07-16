@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EntryGate } from '../components/EntryGate';
 import { Background } from '../components/Background';
 import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
@@ -17,6 +18,7 @@ const DISCORD_USERNAME = "vkirata";
 
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
+  const [entered, setEntered] = useState(false);
   const [discordOpen, setDiscordOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,7 @@ export default function BioPage() {
 
   return (
     <>
+      {!entered && <EntryGate onEnter={() => setEntered(true)} />}
       <CursorGlow />
       <Background>
         {/* Profile / Hero */}
