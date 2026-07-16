@@ -3,8 +3,8 @@
 # ==============================================================
 #  CONFIG -- edit these two lines before running
 # ==============================================================
-$ApiUrl = "https://YOUR_RAILWAY_URL/api/presence"
-$Secret = "YOUR_PRESENCE_SECRET"
+$ApiUrl = "https://kiratawebsitetesting.up.railway.app/api/presence"
+$Secret = "imjoo4422"
 
 $IntervalSecs         = 30
 $IdleThresholdMinutes = 5
