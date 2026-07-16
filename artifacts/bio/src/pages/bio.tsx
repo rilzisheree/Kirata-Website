@@ -13,7 +13,7 @@ import { Check, Copy } from 'lucide-react';
 import { DiscordIcon, RobloxIcon, SpotifyIcon } from '../components/SocialIcons';
 
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
-const PHRASES = ["kinda developer", "chud", "valorant demon"];
+const PHRASES = ["sleeper", "chud", "valorant demon"];
 const DISCORD_USERNAME = "vkirata";
 
 export default function BioPage() {
