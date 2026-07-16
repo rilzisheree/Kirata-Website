@@ -24,11 +24,22 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
   const [open, setOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
+  // Load the YouTube IFrame API script once on mount
+  useEffect(() => {
+    if (!document.getElementById('yt-iframe-api')) {
+      const script = document.createElement('script');
+      script.id = 'yt-iframe-api';
+      script.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  // Start player as soon as user has entered (canAutoplay flips to true)
   useEffect(() => {
     if (!canAutoplay) return;
 
     const initPlayer = () => {
-      if (!mountNodeRef.current) return;
+      if (!mountNodeRef.current || playerRef.current) return;
       playerRef.current = new window.YT.Player(mountNodeRef.current, {
         height: '1',
         width: '1',
@@ -57,25 +68,20 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     if (window.YT?.Player) {
       initPlayer();
     } else {
+      // API script may still be loading — queue on the callback
       const prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         if (prev) prev();
         initPlayer();
       };
-      if (!document.getElementById('yt-iframe-api')) {
-        const script = document.createElement('script');
-        script.id = 'yt-iframe-api';
-        script.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(script);
-      }
     }
 
     return () => {
-      try { playerRef.current?.destroy(); } catch {}
+      try { playerRef.current?.destroy(); playerRef.current = null; } catch {}
     };
   }, [canAutoplay]);
 
-  // close popup when clicking outside
+  // Close popup on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -95,25 +101,29 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     }
   };
 
-  if (!canAutoplay) return null;
-
   const VolumeIcon = volume === 0 ? VolumeX : volume < 50 ? Volume1 : Volume2;
 
   return (
-    <div className="fixed top-4 right-4 z-50" ref={popupRef}>
-      {/* icon button */}
-      <motion.button
+    // Always rendered — fixed top-right corner, above entry gate (z-[100])
+    <div className="fixed top-4 right-4 z-[110]" ref={popupRef}>
+      {/* Mount point for hidden YouTube player */}
+      <div style={{ position: 'fixed', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
+        <div ref={mountNodeRef} />
+      </div>
+
+      {/* Icon button */}
+      <button
         onClick={() => setOpen(v => !v)}
-        className="glass-pill w-10 h-10 text-white/60 hover:text-white flex items-center justify-center"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.5, duration: 0.3 }}
+        className="glass-pill w-10 h-10 flex items-center justify-center"
         aria-label="Music volume"
       >
-        <VolumeIcon size={16} className={ready ? 'text-cyan-400' : 'text-white/40'} />
-      </motion.button>
+        <VolumeIcon
+          size={16}
+          className={ready ? 'text-cyan-400' : 'text-white/40'}
+        />
+      </button>
 
-      {/* volume popup */}
+      {/* Volume popup */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -121,9 +131,9 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-12 right-0 glass-card px-4 py-3 min-w-[200px] border border-white/10"
+            className="absolute top-12 right-0 glass-card px-4 py-3 min-w-[210px] border border-white/10"
           >
-            <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-2">
+            <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-3 truncate">
               i really want to stay at your house
             </div>
             <div className="flex items-center gap-3">
@@ -144,11 +154,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* invisible YouTube mount point */}
-      <div style={{ position: 'fixed', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
-        <div ref={mountNodeRef} />
-      </div>
     </div>
   );
 }

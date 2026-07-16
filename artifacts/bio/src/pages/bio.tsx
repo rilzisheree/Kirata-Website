@@ -50,6 +50,7 @@ export default function BioPage() {
   return (
     <>
       {!entered && <EntryGate onEnter={() => setEntered(true)} />}
+      <BackgroundMusic canAutoplay={entered} />
       <CursorGlow />
       <Background>
         {/* Profile / Hero */}
