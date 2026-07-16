@@ -19,7 +19,7 @@ export function ProjectsGrid() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        maybe soon idk
+        unknown
       </motion.div>
     </div>
   );

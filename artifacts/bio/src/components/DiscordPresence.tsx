@@ -105,13 +105,37 @@ export function LanyardPresence() {
       </div>
 
       {activity && (
-        <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
-          <div className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Current Activity</div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-white">{activity.name}</span>
-            {activity.details && <span className="text-xs text-white/70 mt-1">{activity.details}</span>}
-            {activity.state && <span className="text-xs text-white/70">{activity.state}</span>}
-          </div>
+        <div className="mt-4 pt-4 border-t border-white/5 relative z-10 space-y-1.5">
+          {(() => {
+            const typeLabel: Record<number, string> = {
+              0: 'playing',
+              1: 'streaming',
+              2: 'listening',
+              3: 'watching',
+              5: 'competing in',
+            };
+            const label = typeLabel[activity.type] ?? 'doing';
+            return (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-20 shrink-0">{label}</span>
+                  <span className="text-sm font-medium text-white truncate">{activity.name}</span>
+                </div>
+                {activity.details && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-20 shrink-0">details</span>
+                    <span className="text-xs text-white/60 truncate">{activity.details}</span>
+                  </div>
+                )}
+                {activity.state && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-20 shrink-0">state</span>
+                    <span className="text-xs text-white/60 truncate">{activity.state}</span>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
 
