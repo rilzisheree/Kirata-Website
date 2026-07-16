@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { Router } from "express";
 import {
   GetPresenceResponse,
@@ -6,9 +8,9 @@ import {
 
 const router = Router();
 
-// In-memory presence store — updated by the desktop app via PUT /api/presence
-// Default state: offline with no activity
-let presenceStore: {
+const CACHE_FILE = path.join("/tmp", "presence-cache.json");
+
+type PresenceStore = {
   status: "online" | "idle" | "offline";
   currentApp: string | null;
   currentGame: string | null;
@@ -19,7 +21,9 @@ let presenceStore: {
   activityIcon: string | null;
   uptime: string | null;
   lastUpdated: string;
-} = {
+};
+
+const DEFAULT_STORE: PresenceStore = {
   status: "offline",
   currentApp: null,
   currentGame: null,
@@ -31,6 +35,29 @@ let presenceStore: {
   uptime: null,
   lastUpdated: new Date().toISOString(),
 };
+
+function loadFromDisk(): PresenceStore {
+  try {
+    const raw = fs.readFileSync(CACHE_FILE, "utf-8");
+    const parsed = JSON.parse(raw);
+    // Validate it's at least a plausible shape
+    if (parsed && typeof parsed.status === "string") return parsed as PresenceStore;
+  } catch {
+    // File doesn't exist or is corrupt — that's fine
+  }
+  return { ...DEFAULT_STORE };
+}
+
+function saveToDisk(store: PresenceStore): void {
+  try {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(store), "utf-8");
+  } catch {
+    // Non-fatal — keep going even if write fails
+  }
+}
+
+// Boot from last known state (survives process restarts within a deployment)
+let presenceStore: PresenceStore = loadFromDisk();
 
 // GET /api/presence — returns current presence
 router.get("/presence", (req, res) => {
@@ -76,6 +103,7 @@ router.put("/presence", (req, res) => {
     lastUpdated: new Date().toISOString(),
   };
 
+  saveToDisk(presenceStore);
   req.log.info({ status: presenceStore.status }, "Presence updated");
   res.json(presenceStore);
 });
