@@ -104,6 +104,12 @@ export function LanyardPresence() {
         </div>
       </div>
 
+      {!activity && !data.spotify && (
+        <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
+          <span className="text-xs text-white/35 font-mono">doing nothing prob asleep</span>
+        </div>
+      )}
+
       {activity && (
         <div className="mt-4 pt-4 border-t border-white/5 relative z-10 space-y-1.5">
           {(() => {
