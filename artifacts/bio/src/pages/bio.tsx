@@ -11,6 +11,7 @@ import { VisitCounter } from '../components/VisitCounter';
 import { Check, Copy } from 'lucide-react';
 
 import { DiscordIcon, RobloxIcon, SpotifyIcon } from '../components/SocialIcons';
+import { PresenceCard } from '../components/PresenceCard';
 
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["sleeper", "chud", "valorant demon"];
@@ -181,6 +182,9 @@ export default function BioPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DiscordPresence />
           <MusicPlayer canAutoplay={entered} />
+          <div className="md:col-span-2">
+            <PresenceCard />
+          </div>
         </div>
 
         {/* Visit counter */}

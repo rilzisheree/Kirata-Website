@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 
 export function PresenceCard() {
-  const { data: presence, isLoading, isError } = useGetPresence({ 
+  const { data: presence, isLoading } = useGetPresence({ 
     query: { 
       refetchInterval: 30000, 
       queryKey: getGetPresenceQueryKey() 
@@ -15,10 +15,13 @@ export function PresenceCard() {
     return (
       <div className="glass-card p-5 flex flex-col gap-4 animate-pulse">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 rounded-full bg-white/20" />
-          <div className="h-4 bg-white/10 rounded w-24" />
+          <div className="w-8 h-8 rounded-full bg-white/10" />
+          <div className="space-y-1.5 flex-1">
+            <div className="h-3.5 bg-white/10 rounded w-24" />
+            <div className="h-3 bg-white/10 rounded w-16" />
+          </div>
         </div>
-        <div className="h-16 bg-white/5 rounded-lg w-full" />
+        <div className="h-14 bg-white/5 rounded-lg w-full" />
       </div>
     );
   }
@@ -28,91 +31,79 @@ export function PresenceCard() {
   const isOnline = status === 'online';
   const isIdle = status === 'idle';
   
-  const statusColor = isOnline ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]' : 
-                      isIdle ? 'bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.6)]' : 
-                      'bg-gray-500 shadow-[0_0_10px_rgba(107,114,128,0.4)]';
+  const statusColor = isOnline
+    ? 'bg-green-500'
+    : isIdle
+    ? 'bg-yellow-500'
+    : 'bg-gray-500';
 
-  const statusText = isOnline ? 'ONLINE' : isIdle ? 'IDLE' : 'OFFLINE';
+  const statusLabel = isOnline ? 'Online' : isIdle ? 'Idle' : 'Offline';
 
   const timeAgo = presence?.lastUpdated 
     ? formatDistanceToNow(new Date(presence.lastUpdated), { addSuffix: true }) 
-    : 'Unknown';
+    : null;
 
   return (
     <motion.div 
-      className="glass-card p-5"
+      className="glass-card p-5 relative overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center">
-            {isOnline && <div className="absolute w-full h-full rounded-full bg-green-500/40 animate-ping" />}
-            <div className={`w-3 h-3 rounded-full relative z-10 ${statusColor}`} />
+      {/* Decorative monitor watermark */}
+      <div className="absolute top-0 right-0 p-4 opacity-[0.07] pointer-events-none select-none">
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="currentColor">
+          <path d="M21 2H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7l-2 3v1h8v-1l-2-3h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H3V4h18v12z"/>
+        </svg>
+      </div>
+
+      {/* Header row */}
+      <div className="flex items-center gap-3 relative z-10 mb-4">
+        <div className="relative shrink-0">
+          <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-lg">
+            💻
           </div>
-          <span className="text-xs font-mono tracking-widest text-white/80">{statusText}</span>
+          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a16] ${statusColor}`} />
         </div>
-        
-        {presence?.lastUpdated && (
-          <div className="text-[10px] text-white/40 font-mono text-right">
-            UPDATED {timeAgo.toUpperCase()}
+        <div>
+          <p className="font-bold text-white tracking-wide text-sm leading-tight">{statusLabel}</p>
+          <p className="text-xs text-white/60 font-mono mt-0.5">PC Presence</p>
+        </div>
+        {timeAgo && (
+          <div className="ml-auto text-[10px] text-white/35 font-mono text-right shrink-0">
+            {timeAgo.toUpperCase()}
           </div>
         )}
       </div>
 
-      {!presence?.currentApp && !presence?.currentGame && !presence?.currentSong ? (
-        <div className="py-4 text-center border border-white/5 rounded-lg bg-black/20">
-          <p className="text-sm text-white/40 italic">No recent activity detected.</p>
+      {/* Activity details */}
+      {!presence?.currentApp && !presence?.currentGame ? (
+        <div className="pt-3 border-t border-white/5 relative z-10">
+          <span className="text-xs text-white/35 font-mono">
+            {status === 'offline' ? 'pc is off or agent not running' : 'doing nothing probably'}
+          </span>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="pt-3 border-t border-white/5 relative z-10 space-y-1.5">
           {presence.currentGame && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-              <div className="w-8 h-8 rounded bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
-                🎮
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-white/50 uppercase tracking-wide">Playing</div>
-                <div className="text-sm font-bold text-white truncate">{presence.currentGame}</div>
-              </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
+              <span className="text-sm font-medium text-white truncate">{presence.currentGame}</span>
               {presence.timeSpent && (
-                <div className="text-xs text-white/50 font-mono shrink-0">{presence.timeSpent}</div>
+                <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{presence.timeSpent}</span>
               )}
             </div>
           )}
 
           {presence.currentApp && !presence.currentGame && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-              <div className="w-8 h-8 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                {presence.activityIcon || '💻'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-white/50 uppercase tracking-wide">Working in</div>
-                <div className="text-sm font-bold text-white truncate">{presence.currentApp}</div>
-              </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
+              <span className="text-sm font-medium text-white truncate">
+                {presence.activityIcon ? `${presence.activityIcon} ` : ''}{presence.currentApp}
+              </span>
               {presence.timeSpent && (
-                <div className="text-xs text-white/50 font-mono shrink-0">{presence.timeSpent}</div>
+                <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{presence.timeSpent}</span>
               )}
-            </div>
-          )}
-          
-          {presence.currentSong && (
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-              {presence.currentSongAlbumArt ? (
-                <img src={presence.currentSongAlbumArt} alt="Album Art" className="w-8 h-8 rounded shrink-0 object-cover" />
-              ) : (
-                <div className="w-8 h-8 rounded bg-green-500/20 text-green-400 flex items-center justify-center shrink-0">
-                  🎵
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-white/50 uppercase tracking-wide">Listening</div>
-                <div className="text-sm font-bold text-white truncate">{presence.currentSong}</div>
-                {presence.currentSongArtist && (
-                  <div className="text-xs text-white/50 truncate">{presence.currentSongArtist}</div>
-                )}
-              </div>
             </div>
           )}
         </div>

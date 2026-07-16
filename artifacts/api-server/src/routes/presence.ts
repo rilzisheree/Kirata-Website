@@ -42,7 +42,18 @@ router.get("/presence", (req, res) => {
 });
 
 // PUT /api/presence — update presence (called by desktop app)
+// Protected by PRESENCE_SECRET bearer token when the env var is set.
 router.put("/presence", (req, res) => {
+  const secret = process.env["PRESENCE_SECRET"];
+  if (secret) {
+    const auth = req.headers["authorization"] ?? "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+    if (token !== secret) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+  }
+
   const parsed = UpdatePresenceBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid presence payload", details: parsed.error.issues });
