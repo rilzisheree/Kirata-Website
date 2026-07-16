@@ -101,7 +101,6 @@ export function PresenceCard() {
 
         <div className="flex-1 min-w-0">
           <p className="font-bold text-white tracking-wide text-sm leading-tight">kirata's pc :D</p>
-          <p className="text-xs text-white/60 font-mono mt-0.5">Kirata's PC</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className={`inline-block w-1.5 h-1.5 rounded-full ${statusDotColor}`} />
             <span className="text-[11px] text-white/50 font-mono">{statusLabel}</span>
