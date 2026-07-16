@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Personal Bio"
+version = "1.0.0"
+id = "artifacts/bio"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22994
+
+[services.development]
+run = "pnpm --filter @workspace/bio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bio", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/bio/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22994"
+BASE_PATH = "/"

@@ -5,21 +5,7 @@
  * Personal bio API
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-/**
- * online | idle | offline
- */
-export type PresenceStatus = typeof PresenceStatus[keyof typeof PresenceStatus];
-
-
-export const PresenceStatus = {
-  online: 'online',
-  idle: 'idle',
-  offline: 'offline',
-} as const;
+import type { PresenceStatus } from './presenceStatus';
 
 export interface Presence {
   /** online | idle | offline */
@@ -62,31 +48,3 @@ export interface Presence {
   /** ISO 8601 timestamp of last update */
   lastUpdated: string;
 }
-
-export type PresenceInputStatus = typeof PresenceInputStatus[keyof typeof PresenceInputStatus];
-
-
-export const PresenceInputStatus = {
-  online: 'online',
-  idle: 'idle',
-  offline: 'offline',
-} as const;
-
-export interface PresenceInput {
-  status: PresenceInputStatus;
-  /** @nullable */
-  currentApp?: string | null;
-  /** @nullable */
-  currentGame?: string | null;
-  /** @nullable */
-  currentSong?: string | null;
-  /** @nullable */
-  currentSongArtist?: string | null;
-  /** @nullable */
-  currentSongAlbumArt?: string | null;
-  /** @nullable */
-  timeSpent?: string | null;
-  /** @nullable */
-  activityIcon?: string | null;
-}
-

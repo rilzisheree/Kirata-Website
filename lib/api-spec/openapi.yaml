@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Personal bio API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: presence
+    description: Real-time presence operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /presence:
+    get:
+      operationId: getPresence
+      tags: [presence]
+      summary: Get current presence
+      description: Returns the current real-time presence status (online/idle/offline, current app, game, song, etc.)
+      responses:
+        "200":
+          description: Current presence data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Presence"
+
+    put:
+      operationId: updatePresence
+      tags: [presence]
+      summary: Update presence
+      description: Updates the presence state. Intended to be called by a desktop application.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresenceInput"
+      responses:
+        "200":
+          description: Updated presence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Presence"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +70,60 @@ components:
       required:
         - status
 
+    Presence:
+      type: object
+      required:
+        - status
+        - lastUpdated
+      properties:
+        status:
+          type: string
+          enum: [online, idle, offline]
+          description: "online | idle | offline"
+        currentApp:
+          type: ["string", "null"]
+          description: Currently open application
+        currentGame:
+          type: ["string", "null"]
+          description: Currently playing game
+        currentSong:
+          type: ["string", "null"]
+          description: Currently listening to song
+        currentSongArtist:
+          type: ["string", "null"]
+          description: Artist of current song
+        currentSongAlbumArt:
+          type: ["string", "null"]
+          description: URL to album art
+        timeSpent:
+          type: ["string", "null"]
+          description: Human-readable time spent in current activity (e.g. "2h 15m")
+        activityIcon:
+          type: ["string", "null"]
+          description: Icon URL or emoji for current activity
+        lastUpdated:
+          type: string
+          description: ISO 8601 timestamp of last update
+
+    PresenceInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [online, idle, offline]
+        currentApp:
+          type: ["string", "null"]
+        currentGame:
+          type: ["string", "null"]
+        currentSong:
+          type: ["string", "null"]
+        currentSongArtist:
+          type: ["string", "null"]
+        currentSongAlbumArt:
+          type: ["string", "null"]
+        timeSpent:
+          type: ["string", "null"]
+        activityIcon:
+          type: ["string", "null"]
