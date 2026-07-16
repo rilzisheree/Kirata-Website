@@ -36,7 +36,7 @@ app.use("/api", router);
 if (process.env.NODE_ENV === "production") {
   const bioPublicDir = path.join(process.cwd(), "artifacts/bio/dist/public");
   app.use(express.static(bioPublicDir));
-  app.get("*", (_req, res) => {
+  app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(bioPublicDir, "index.html"));
   });
 }
