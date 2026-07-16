@@ -11,7 +11,7 @@ export function EntryGate({ onEnter }: EntryGateProps) {
   const handleClick = () => {
     if (exiting) return;
     setExiting(true);
-    setTimeout(onEnter, 700);
+    onEnter(); // fire immediately — iframe must mount within the gesture window
   };
 
   return (
