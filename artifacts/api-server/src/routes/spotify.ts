@@ -118,8 +118,18 @@ router.get("/spotify/debug", (_req, res) => {
   });
 });
 
+let cachedTracks: any[] | null = null;
+let tracksExpiresAt = 0;
+const TRACKS_CACHE_MS = 3 * 60 * 1000; // 3 minutes
+
 router.get("/spotify/recent", async (req, res) => {
   res.set("Cache-Control", "no-store");
+
+  // Serve from cache if still fresh
+  if (cachedTracks && Date.now() < tracksExpiresAt) {
+    res.json({ tracks: cachedTracks, cached: true });
+    return;
+  }
 
   const token = await getAccessToken();
   if (!token) {
@@ -132,6 +142,11 @@ router.get("/spotify/recent", async (req, res) => {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!resp.ok) {
+      // On rate limit, return stale cache if available rather than erroring
+      if (resp.status === 429 && cachedTracks) {
+        res.json({ tracks: cachedTracks, cached: true });
+        return;
+      }
       res.status(resp.status).json({ error: "Spotify API error" });
       return;
     }
@@ -143,9 +158,15 @@ router.get("/spotify/recent", async (req, res) => {
       spotifyUrl: item.track.external_urls?.spotify ?? null,
       playedAt:   item.played_at,
     }));
+    cachedTracks = tracks;
+    tracksExpiresAt = Date.now() + TRACKS_CACHE_MS;
     res.json({ tracks });
   } catch (err) {
     req.log.error({ err }, "Spotify recent fetch failed");
+    if (cachedTracks) {
+      res.json({ tracks: cachedTracks, cached: true });
+      return;
+    }
     res.status(500).json({ error: "Failed to fetch tracks" });
   }
 });
