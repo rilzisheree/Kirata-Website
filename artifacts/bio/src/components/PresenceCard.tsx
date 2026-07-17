@@ -2,6 +2,45 @@ import React, { useEffect, useState } from 'react';
 import { useGetPresence, getGetPresenceQueryKey } from "@workspace/api-client-react";
 import { motion } from 'framer-motion';
 
+const APP_ICONS: Record<string, string> = {
+  // Apps
+  'VS Code':          '🖥️',
+  'Windows Terminal': '⬛',
+  'PowerShell':       '🔷',
+  'Google Chrome':    '🌐',
+  'Firefox':          '🦊',
+  'Microsoft Edge':   '🌀',
+  'Discord':          '💬',
+  'Spotify':          '🎵',
+  'Figma':            '🎨',
+  'Obsidian':         '🔮',
+  'Slack':            '💼',
+  'Notion':           '📝',
+  'Steam':            '🎮',
+  'JetBrains Rider':  '🛠️',
+  'IntelliJ IDEA':    '🛠️',
+  'WebStorm':         '🌩️',
+  'Notepad++':        '📄',
+  // Games
+  'VALORANT':         '🔴',
+  'Roblox':           '🧱',
+  'Minecraft':        '⛏️',
+  'CS2':              '💣',
+  'CS:GO':            '💣',
+  'League of Legends':'⚔️',
+  'Fortnite':         '🏗️',
+  'Apex Legends':     '🎯',
+  'Genshin Impact':   '🌸',
+  'Rocket League':    '🚗',
+  'Destiny 2':        '🌙',
+  'Elden Ring':        '💀',
+  'GTA V':            '🚔',
+};
+
+function getAppIcon(name: string): string {
+  return APP_ICONS[name] ?? '📦';
+}
+
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
@@ -125,32 +164,43 @@ export function PresenceCard() {
         ) : !currentGame && !currentApp && !(currentApps && currentApps.length > 0) ? (
           <span className="text-xs text-white/35 font-mono">doing nothing probably</span>
         ) : (
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {currentGame && (
-              <div className="flex items-baseline gap-2">
-                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">playing</span>
+                <span className="text-base">{getAppIcon(currentGame)}</span>
                 <span className="text-sm font-medium text-white truncate">{currentGame}</span>
-                {timeSpent && !currentApp && (
-                  <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+                {timeSpent && (
+                  <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                    {timeSpent}
+                  </span>
                 )}
               </div>
             )}
             {currentApps && currentApps.length > 0 ? (
-              currentApps.map((app, i) => (
-                <div key={app} className="flex items-baseline gap-2">
-                  <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">{i === 0 ? 'using' : ''}</span>
-                  <span className="text-sm font-medium text-white truncate">{app}</span>
-                  {timeSpent && i === currentApps.length - 1 && !currentGame && (
-                    <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
-                  )}
-                </div>
-              ))
+              <>
+                {currentApps.map((app, i) => (
+                  <div key={app} className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">{i === 0 ? 'using' : ''}</span>
+                    <span className="text-base">{getAppIcon(app)}</span>
+                    <span className="text-sm font-medium text-white truncate">{app}</span>
+                    {timeSpent && i === 0 && !currentGame && (
+                      <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                        {timeSpent}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </>
             ) : currentApp ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">using</span>
+                <span className="text-base">{getAppIcon(currentApp)}</span>
                 <span className="text-sm font-medium text-white truncate">{currentApp}</span>
                 {timeSpent && !currentGame && (
-                  <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+                  <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                    {timeSpent}
+                  </span>
                 )}
               </div>
             ) : null}
