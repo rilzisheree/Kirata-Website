@@ -9,10 +9,10 @@ interface EntryGateProps {
 // ── Boot terminal lines ───────────────────────────────────────────────────────
 const BOOT_LINES: { text: string; suffix?: string }[] = [
   { text: '> initializing...' },
-  { text: '> loading assets...', suffix: ' ok' },
-  { text: '> fetching presence data...', suffix: ' ok' },
-  { text: '> establishing connection...', suffix: ' ok' },
-  { text: '> all systems nominal.', suffix: ' ok' },
+  { text: '> loading assets...', suffix: ' done' },
+  { text: '> fetching presence data...', suffix: ' done' },
+  { text: '> establishing connection...', suffix: ' done' },
+  { text: '> all systems nominal.', suffix: ' done' },
 ];
 
 
