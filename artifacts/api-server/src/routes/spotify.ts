@@ -8,14 +8,20 @@ let   refreshToken  = process.env["SPOTIFY_REFRESH_TOKEN"] ?? null;
 let   cachedAccessToken: string | null = null;
 let   tokenExpiresAt = 0;
 
+function getRedirectUri(req: any): string {
+  if (process.env["SPOTIFY_REDIRECT_URI"]) return process.env["SPOTIFY_REDIRECT_URI"];
+  const proto  = req.headers["x-forwarded-proto"] ?? req.protocol;
+  const host   = req.headers["x-forwarded-host"]  ?? req.get("host");
+  return `${proto}://${host}/api/spotify/callback`;
+}
+
 // GET /spotify/auth — start OAuth flow (one-time setup)
 router.get("/spotify/auth", (req, res) => {
   if (!CLIENT_ID) {
     res.status(500).send("SPOTIFY_CLIENT_ID not set");
     return;
   }
-  const origin       = `${req.protocol}://${req.get("host")}`;
-  const redirectUri  = `${origin}/api/spotify/callback`;
+  const redirectUri  = getRedirectUri(req);
   const scope        = "user-read-recently-played";
   const url          = `https://accounts.spotify.com/authorize?response_type=code&client_id=${CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
   res.redirect(url);
@@ -27,8 +33,7 @@ router.get("/spotify/callback", async (req, res) => {
   if (!code) { res.status(400).send("Missing code"); return; }
   if (!CLIENT_ID || !CLIENT_SECRET) { res.status(500).send("Spotify credentials not set"); return; }
 
-  const origin      = `${req.protocol}://${req.get("host")}`;
-  const redirectUri = `${origin}/api/spotify/callback`;
+  const redirectUri = getRedirectUri(req);
 
   try {
     const body = new URLSearchParams({
