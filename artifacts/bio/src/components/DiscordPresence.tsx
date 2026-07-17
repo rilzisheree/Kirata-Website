@@ -73,9 +73,7 @@ export function LanyardPresence() {
   const statusColor = statusColors[data.discord_status as keyof typeof statusColors] || statusColors.offline;
   const activity = data.activities?.[0];
 
-  const bannerUrl = data.discord_user.banner
-    ? `https://cdn.discordapp.com/banners/${DISCORD_ID}/${data.discord_user.banner}.png?size=480`
-    : null;
+  const bannerUrl = "/banner.jpg";
 
   return (
     <motion.div
