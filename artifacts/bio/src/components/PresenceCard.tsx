@@ -121,24 +121,29 @@ export function PresenceCard() {
           <span className="text-xs text-white/35 font-mono">{offlineMessage}</span>
         ) : isIdle ? (
           <span className="text-xs text-white/35 font-mono">{idleMessage}</span>
-        ) : currentGame ? (
-          <div className="flex items-baseline gap-2">
-            <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
-            <span className="text-sm font-medium text-white truncate">{currentGame}</span>
-            {timeSpent && (
-              <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
-            )}
-          </div>
-        ) : currentApp ? (
-          <div className="flex items-baseline gap-2">
-            <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
-            <span className="text-sm font-medium text-white truncate">{currentApp}</span>
-            {timeSpent && (
-              <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
-            )}
-          </div>
-        ) : (
+        ) : !currentGame && !currentApp ? (
           <span className="text-xs text-white/35 font-mono">doing nothing probably</span>
+        ) : (
+          <div className="space-y-1.5">
+            {currentGame && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">playing</span>
+                <span className="text-sm font-medium text-white truncate">{currentGame}</span>
+                {timeSpent && !currentApp && (
+                  <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+                )}
+              </div>
+            )}
+            {currentApp && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
+                <span className="text-sm font-medium text-white truncate">{currentApp}</span>
+                {timeSpent && (
+                  <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </motion.div>

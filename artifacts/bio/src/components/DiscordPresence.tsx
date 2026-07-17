@@ -71,7 +71,7 @@ export function LanyardPresence() {
   };
 
   const statusColor = statusColors[data.discord_status as keyof typeof statusColors] || statusColors.offline;
-  const activity = data.activities?.[0];
+  const activities: any[] = (data.activities ?? []).filter((a: any) => a.type !== 4); // exclude custom status
 
   const bannerUrl = "/banner.jpg";
 
@@ -116,15 +116,15 @@ export function LanyardPresence() {
           <h3 className="font-bold text-white tracking-wide">{data.discord_user.username}</h3>
         </div>
 
-      {!activity && !data.spotify && (
+      {activities.length === 0 && !data.spotify && (
         <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
           <span className="text-xs text-white/35 font-mono">doing nothing prob asleep</span>
         </div>
       )}
 
-      {activity && (
-        <div className="mt-4 pt-4 border-t border-white/5 relative z-10 space-y-1.5">
-          {(() => {
+      {activities.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-white/5 relative z-10 space-y-3">
+          {activities.map((activity, i) => {
             const typeLabel: Record<number, string> = {
               0: 'playing',
               1: 'streaming',
@@ -134,7 +134,7 @@ export function LanyardPresence() {
             };
             const label = typeLabel[activity.type] ?? 'doing';
             return (
-              <>
+              <div key={i} className={i > 0 ? "pt-3 border-t border-white/5 space-y-1.5" : "space-y-1.5"}>
                 <div className="flex items-baseline gap-2">
                   <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-20 shrink-0">{label}</span>
                   <span className="text-sm font-medium text-white truncate">{activity.name}</span>
@@ -151,9 +151,9 @@ export function LanyardPresence() {
                     <span className="text-xs text-white/60 truncate">{activity.state}</span>
                   </div>
                 )}
-              </>
+              </div>
             );
-          })()}
+          })}
         </div>
       )}
 
