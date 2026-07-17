@@ -8,11 +8,10 @@ let   refreshToken  = process.env["SPOTIFY_REFRESH_TOKEN"] ?? null;
 let   cachedAccessToken: string | null = null;
 let   tokenExpiresAt = 0;
 
-function getRedirectUri(req: any): string {
-  if (process.env["SPOTIFY_REDIRECT_URI"]) return process.env["SPOTIFY_REDIRECT_URI"];
-  const proto  = req.headers["x-forwarded-proto"] ?? req.protocol;
-  const host   = req.headers["x-forwarded-host"]  ?? req.get("host");
-  return `${proto}://${host}/api/spotify/callback`;
+const REDIRECT_URI = "https://kiratawebsitetesting.up.railway.app/api/spotify/callback";
+
+function getRedirectUri(_req: any): string {
+  return process.env["SPOTIFY_REDIRECT_URI"] ?? REDIRECT_URI;
 }
 
 // GET /spotify/auth — start OAuth flow (one-time setup)
