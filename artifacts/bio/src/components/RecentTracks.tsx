@@ -84,7 +84,7 @@ export function RecentTracks() {
       </div>
 
       {/* Track list */}
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 overflow-y-auto max-h-72 pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         {tracks.map((track, i) => (
           <motion.div
             key={`${track.name}-${track.playedAt}`}
