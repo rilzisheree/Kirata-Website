@@ -74,8 +74,8 @@ export function Background({ children }: { children: React.ReactNode }) {
 
       <Particles />
 
-      <div className="relative z-10 w-full flex justify-center py-20 px-4 sm:px-6">
-        <div className="w-full max-w-2xl space-y-8 pb-32">
+      <div className="relative z-10 w-full flex justify-center py-16 px-4 sm:px-8">
+        <div className="w-full max-w-5xl pb-16">
           {children}
         </div>
       </div>
