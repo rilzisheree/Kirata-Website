@@ -37,35 +37,39 @@ function StatusIcon({ status }: { status: string }) {
   );
 }
 
-// ── Discord Nitro badge ───────────────────────────────────────────────────────
+// ── Discord Nitro badge (teal winged circle) ──────────────────────────────────
 function NitroBadge() {
   return (
-    <svg width="18" height="18" viewBox="0 0 22 22" title="Discord Nitro">
+    <svg width="20" height="20" viewBox="0 0 20 20" title="Discord Nitro">
       <defs>
-        <linearGradient id="nitro-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#e879f9" />
-          <stop offset="100%" stopColor="#818cf8" />
+        <linearGradient id="nitro-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4dc9e6" />
+          <stop offset="100%" stopColor="#2b8fcc" />
         </linearGradient>
       </defs>
-      <circle cx="11" cy="11" r="11" fill="url(#nitro-grad)" />
-      <path d="M7 11c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zm4-2.5c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z" fill="white" />
-      <circle cx="11" cy="11" r="1.5" fill="white" />
+      <circle cx="10" cy="10" r="10" fill="url(#nitro-bg)" />
+      {/* Outer ring */}
+      <circle cx="10" cy="10" r="6.5" fill="none" stroke="white" strokeWidth="1.5" />
+      {/* Inner dot */}
+      <circle cx="10" cy="10" r="2.5" fill="white" />
+      {/* Wing swoosh left */}
+      <path d="M3.5 10 C5 6.5 7.5 5 10 5" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
 
-// ── Discord Server Booster badge ──────────────────────────────────────────────
+// ── Discord Server Booster badge (pink upward triangle) ───────────────────────
 function BoosterBadge() {
   return (
-    <svg width="18" height="18" viewBox="0 0 22 22" title="Server Booster">
+    <svg width="20" height="20" viewBox="0 0 20 20" title="Server Booster">
       <defs>
-        <linearGradient id="boost-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ff73fa" />
+        <linearGradient id="boost-bg" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#f47fff" />
           <stop offset="100%" stopColor="#c84ecb" />
         </linearGradient>
       </defs>
-      <circle cx="11" cy="11" r="11" fill="url(#boost-grad)" />
-      <path d="M11 5.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L11 13.7l-3.2 1.7.6-3.6L5.8 9.3l3.6-.5L11 5.5z" fill="white" />
+      {/* Solid upward-pointing triangle, same shape as the real badge */}
+      <polygon points="10,2 19,18 1,18" fill="url(#boost-bg)" />
     </svg>
   );
 }
