@@ -198,7 +198,7 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                 >
                   <motion.p
                     className="font-mono text-xs tracking-widest"
-                    style={{ color: '#a2a7d2' }}
+                    style={{ color: 'rgba(162,167,210,0.45)' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.6 }}
