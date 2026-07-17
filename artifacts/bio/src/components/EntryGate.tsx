@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface EntryGateProps {
   onAudioReady: () => void;
   onDone: () => void;
+  skipBoot?: boolean;
 }
 
 // ── Boot terminal lines ───────────────────────────────────────────────────────
@@ -135,8 +136,8 @@ function TerminalCard({ completedLines, currentLine }: { completedLines: string[
 // ── Main ──────────────────────────────────────────────────────────────────────
 type Phase = 'booting' | 'idle' | 'loading' | 'exiting';
 
-export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
-  const [phase, setPhase]     = useState<Phase>('booting');
+export function EntryGate({ onAudioReady, onDone, skipBoot = false }: EntryGateProps) {
+  const [phase, setPhase]     = useState<Phase>(skipBoot ? 'idle' : 'booting');
   const [visible, setVisible] = useState(true);
 
   const boot = useTypingSequence(
