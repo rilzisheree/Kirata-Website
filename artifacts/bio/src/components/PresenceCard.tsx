@@ -2,43 +2,64 @@ import React, { useEffect, useState } from 'react';
 import { useGetPresence, getGetPresenceQueryKey } from "@workspace/api-client-react";
 import { motion } from 'framer-motion';
 
-const APP_ICONS: Record<string, string> = {
+type AppIconDef = { slug: string; color: string };
+
+const APP_ICON_DEFS: Record<string, AppIconDef> = {
   // Apps
-  'VS Code':          '🖥️',
-  'Windows Terminal': '⬛',
-  'PowerShell':       '🔷',
-  'Google Chrome':    '🌐',
-  'Firefox':          '🦊',
-  'Microsoft Edge':   '🌀',
-  'Discord':          '💬',
-  'Spotify':          '🎵',
-  'Figma':            '🎨',
-  'Obsidian':         '🔮',
-  'Slack':            '💼',
-  'Notion':           '📝',
-  'Steam':            '🎮',
-  'JetBrains Rider':  '🛠️',
-  'IntelliJ IDEA':    '🛠️',
-  'WebStorm':         '🌩️',
-  'Notepad++':        '📄',
+  'VS Code':          { slug: 'visualstudiocode',  color: '007ACC' },
+  'Windows Terminal': { slug: 'windowsterminal',   color: '4D4D4D' },
+  'PowerShell':       { slug: 'powershell',        color: '5391FE' },
+  'Google Chrome':    { slug: 'googlechrome',      color: '4285F4' },
+  'Firefox':          { slug: 'firefox',           color: 'FF7139' },
+  'Microsoft Edge':   { slug: 'microsoftedge',     color: '0078D7' },
+  'Discord':          { slug: 'discord',           color: '5865F2' },
+  'Spotify':          { slug: 'spotify',           color: '1DB954' },
+  'Figma':            { slug: 'figma',             color: 'F24E1E' },
+  'Obsidian':         { slug: 'obsidian',          color: '7C3AED' },
+  'Slack':            { slug: 'slack',             color: '4A154B' },
+  'Notion':           { slug: 'notion',            color: 'ffffff' },
+  'Steam':            { slug: 'steam',             color: 'ffffff' },
+  'JetBrains Rider':  { slug: 'rider',             color: '000000' },
+  'IntelliJ IDEA':    { slug: 'intellijidea',      color: 'FF0000' },
+  'WebStorm':         { slug: 'webstorm',          color: '00C0F3' },
+  'Notepad++':        { slug: 'notepadplusplus',   color: '90E59A' },
   // Games
-  'VALORANT':         '🔴',
-  'Roblox':           '🧱',
-  'Minecraft':        '⛏️',
-  'CS2':              '💣',
-  'CS:GO':            '💣',
-  'League of Legends':'⚔️',
-  'Fortnite':         '🏗️',
-  'Apex Legends':     '🎯',
-  'Genshin Impact':   '🌸',
-  'Rocket League':    '🚗',
-  'Destiny 2':        '🌙',
-  'Elden Ring':        '💀',
-  'GTA V':            '🚔',
+  'VALORANT':         { slug: 'valorant',          color: 'FF4655' },
+  'Roblox':           { slug: 'roblox',            color: 'ffffff' },
+  'Minecraft':        { slug: 'minecraft',         color: '62B47A' },
+  'CS2':              { slug: 'counter-strike',    color: 'F4A400' },
+  'CS:GO':            { slug: 'counter-strike',    color: 'F4A400' },
+  'League of Legends':{ slug: 'leagueoflegends',   color: 'C6A84B' },
+  'Fortnite':         { slug: 'fortnite',          color: 'ffffff' },
+  'Apex Legends':     { slug: 'apexlegends',       color: 'DA292A' },
+  'Genshin Impact':   { slug: 'genshinimpact',     color: '00B4C6' },
+  'Rocket League':    { slug: 'rocketleague',      color: '2295F3' },
+  'Destiny 2':        { slug: 'bungie',            color: 'ffffff' },
+  'Elden Ring':       { slug: 'fromsoftware',      color: 'ffffff' },
+  'GTA V':            { slug: 'rockstargames',     color: 'FCAF17' },
 };
 
-function getAppIcon(name: string): string {
-  return APP_ICONS[name] ?? '📦';
+function AppIcon({ name, size = 16 }: { name: string; size?: number }) {
+  const def = APP_ICON_DEFS[name];
+  if (!def) {
+    return (
+      <span
+        className="shrink-0 flex items-center justify-center rounded bg-white/10 text-[9px] font-bold text-white/60"
+        style={{ width: size, height: size }}
+      >
+        {name[0]}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={`https://cdn.simpleicons.org/${def.slug}/${def.color}`}
+      alt={name}
+      width={size}
+      height={size}
+      className="shrink-0"
+    />
+  );
 }
 
 function formatDuration(seconds: number): string {
@@ -168,7 +189,7 @@ export function PresenceCard() {
             {currentGame && (
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">playing</span>
-                <span className="text-base">{getAppIcon(currentGame)}</span>
+                <AppIcon name={currentGame} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentGame}</span>
                 {timeSpent && (
                   <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
@@ -182,7 +203,7 @@ export function PresenceCard() {
                 {currentApps.map((app, i) => (
                   <div key={app} className="flex items-center gap-2">
                     <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">{i === 0 ? 'using' : ''}</span>
-                    <span className="text-base">{getAppIcon(app)}</span>
+                    <AppIcon name={app} size={16} />
                     <span className="text-sm font-medium text-white truncate">{app}</span>
                     {timeSpent && i === 0 && !currentGame && (
                       <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
@@ -195,7 +216,7 @@ export function PresenceCard() {
             ) : currentApp ? (
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">using</span>
-                <span className="text-base">{getAppIcon(currentApp)}</span>
+                <AppIcon name={currentApp} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentApp}</span>
                 {timeSpent && !currentGame && (
                   <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
