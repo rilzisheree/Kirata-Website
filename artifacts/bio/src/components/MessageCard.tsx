@@ -108,7 +108,8 @@ export function MessageCard() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    // Enter alone sends; Shift+Enter inserts a newline
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -214,7 +215,7 @@ export function MessageCard() {
 
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[10px] text-white/20 font-mono hidden sm:block">
-                  ctrl+enter to send
+                  shift+enter for newline
                 </span>
                 <motion.button
                   onClick={handleSend}
