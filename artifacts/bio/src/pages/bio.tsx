@@ -8,6 +8,7 @@ import { LanyardPresence as DiscordPresence } from '../components/DiscordPresenc
 import { RecentTracks } from '../components/RecentTracks';
 import { BackgroundMusic, type BackgroundMusicHandle } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
+import { MessageCard } from '../components/MessageCard';
 import { Check, Copy } from 'lucide-react';
 
 import { DiscordIcon, RobloxIcon, SpotifyIcon } from '../components/SocialIcons';
@@ -206,12 +207,22 @@ export default function BioPage() {
           <RecentTracks />
         </motion.div>
 
+        {/* Message */}
+        <motion.div
+          className="mt-4"
+          initial="hidden"
+          animate={animState}
+          variants={staggerVariants(0.80)}
+        >
+          <MessageCard />
+        </motion.div>
+
         {/* Visit counter */}
         <motion.div
           className="flex justify-center pt-4 pb-2"
           initial="hidden"
           animate={animState}
-          variants={staggerVariants(0.85)}
+          variants={staggerVariants(0.95)}
         >
           <VisitCounter />
         </motion.div>
