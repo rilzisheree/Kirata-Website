@@ -190,24 +190,22 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
               {phase === 'idle' && (
                 <motion.div
                   key="idle"
-                  className="flex flex-col items-center text-center gap-3"
+                  className="flex flex-col items-center text-center gap-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.6 }}
                 >
-                  {/* Name */}
                   <motion.p
-                    className="font-mono text-xs tracking-[0.25em]"
-                    style={{ color: 'rgba(255,255,255,0.30)' }}
+                    className="font-mono text-xs tracking-widest"
+                    style={{ color: 'rgba(255,255,255,0.28)' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.6 }}
                   >
-                    kirata
+                    https://kirataslife.space/
                   </motion.p>
 
-                  {/* CTA */}
                   <motion.p
                     className="font-mono text-sm tracking-widest"
                     style={{ color: 'rgba(255,255,255,0.55)' }}
@@ -216,17 +214,6 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                     transition={{ delay: 0.25, duration: 0.6 }}
                   >
                     click anywhere to enter
-                  </motion.p>
-
-                  {/* Flavour line */}
-                  <motion.p
-                    className="font-mono text-[11px] tracking-wider mt-1"
-                    style={{ color: 'rgba(255,255,255,0.18)' }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.45, duration: 0.7 }}
-                  >
-                    // valorant demon — chud; grindmaxxing 2026
                   </motion.p>
                 </motion.div>
               )}
