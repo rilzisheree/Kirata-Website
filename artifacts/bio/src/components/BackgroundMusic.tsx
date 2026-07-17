@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } f
 import { Volume2, VolumeX, Volume1 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const VIDEO_ID = 'KvMY1uzSC1E';
+const VIDEO_ID = 'gRUCHtB_JlI';
 
 declare global {
   interface Window {
@@ -160,7 +160,7 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
               className="absolute top-12 right-0 glass-card px-4 py-3 min-w-[210px] border border-white/10"
             >
               <div className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-3 truncate">
-                i really want to stay at your house
+                doja cat — need to know
               </div>
               <div className="flex items-center gap-3">
                 <VolumeIcon size={13} className="text-cyan-400 shrink-0" />
