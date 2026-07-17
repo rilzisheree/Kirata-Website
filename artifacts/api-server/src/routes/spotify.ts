@@ -23,8 +23,18 @@ router.get("/spotify/auth", (req, res) => {
   }
   const redirectUri  = getRedirectUri(req);
   const scope        = "user-read-recently-played";
-  const url          = `https://accounts.spotify.com/authorize?response_type=code&client_id=${CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-  res.redirect(url);
+  const authUrl      = `https://accounts.spotify.com/authorize?response_type=code&client_id=${CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+  // Show confirmation page so the redirect URI is visible before proceeding
+  res.send(`
+    <html><body style="font-family:monospace;padding:2rem;background:#111;color:#eee">
+      <h2 style="color:#1DB954">Spotify Auth Setup</h2>
+      <p>The server will use this <strong>redirect URI</strong>:</p>
+      <pre style="background:#222;padding:1rem;border-radius:8px">${redirectUri}</pre>
+      <p>Make sure this exact URL is added in your <a href="https://developer.spotify.com/dashboard" style="color:#1DB954">Spotify app's</a> Redirect URIs list, then click below:</p>
+      <a href="${authUrl}" style="display:inline-block;background:#1DB954;color:#000;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:bold">Authorize with Spotify →</a>
+    </body></html>
+  `);
 });
 
 // GET /spotify/callback — exchange code, display refresh token for copy-paste
