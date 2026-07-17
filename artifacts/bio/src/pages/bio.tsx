@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { EntryGate } from '../components/EntryGate';
 import { Background } from '../components/Background';
-import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
 import { LanyardPresence as DiscordPresence } from '../components/DiscordPresence';
 import { RecentTracks } from '../components/RecentTracks';
@@ -55,7 +54,6 @@ export default function BioPage() {
     <>
       <EntryGate onAudioReady={() => musicRef.current?.play()} onDone={() => setEntered(true)} />
       <BackgroundMusic ref={musicRef} />
-      <CursorGlow />
       <Background>
         {/* ── Two-column grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 items-start">
