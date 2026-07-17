@@ -120,14 +120,26 @@ router.get("/spotify/debug", (_req, res) => {
 
 let cachedTracks: any[] | null = null;
 let tracksExpiresAt = 0;
+let rateLimitedUntil = 0;
 const TRACKS_CACHE_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_BACKOFF_MS = 15 * 60 * 1000; // 15 minutes — stop hammering Spotify after a 429
 
 router.get("/spotify/recent", async (req, res) => {
   res.set("Cache-Control", "no-store");
 
   // Serve from cache if still fresh
   if (cachedTracks && Date.now() < tracksExpiresAt) {
-    res.json({ tracks: cachedTracks, cached: true });
+    res.json({ tracks: cachedTracks });
+    return;
+  }
+
+  // Back off if we hit a rate limit recently — don't retry until the window clears
+  if (Date.now() < rateLimitedUntil) {
+    if (cachedTracks) {
+      res.json({ tracks: cachedTracks, cached: true });
+    } else {
+      res.status(429).json({ error: "Rate limited — retrying soon" });
+    }
     return;
   }
 
@@ -142,9 +154,15 @@ router.get("/spotify/recent", async (req, res) => {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!resp.ok) {
-      // On rate limit, return stale cache if available rather than erroring
-      if (resp.status === 429 && cachedTracks) {
-        res.json({ tracks: cachedTracks, cached: true });
+      if (resp.status === 429) {
+        // Respect Retry-After header if present, otherwise back off 15 min
+        const retryAfter = parseInt(resp.headers.get("Retry-After") ?? "0", 10);
+        rateLimitedUntil = Date.now() + (retryAfter > 0 ? retryAfter * 1000 : RATE_LIMIT_BACKOFF_MS);
+        if (cachedTracks) {
+          res.json({ tracks: cachedTracks, cached: true });
+        } else {
+          res.status(429).json({ error: "Rate limited — retrying soon" });
+        }
         return;
       }
       const errBody = await resp.text().catch(() => "");
@@ -161,6 +179,7 @@ router.get("/spotify/recent", async (req, res) => {
     }));
     cachedTracks = tracks;
     tracksExpiresAt = Date.now() + TRACKS_CACHE_MS;
+    rateLimitedUntil = 0; // clear any backoff on success
     res.json({ tracks });
   } catch (err) {
     req.log.error({ err }, "Spotify recent fetch failed");
