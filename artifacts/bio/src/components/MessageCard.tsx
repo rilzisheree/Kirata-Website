@@ -26,7 +26,9 @@ function formatCountdown(ms: number): string {
 type Status = 'idle' | 'sending' | 'sent' | 'error' | 'rate_limited';
 
 export function MessageCard() {
+  const [name, setName] = useState('');
   const [message, setMessage] = useState('');
+  const [attachmentUrl, setAttachmentUrl] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const [errorText, setErrorText] = useState('');
   const [remaining, setRemaining] = useState(getRemainingMs);
@@ -69,7 +71,11 @@ export function MessageCard() {
       const res = await fetch('/api/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          message,
+          name: name.trim() || undefined,
+          attachmentUrl: attachmentUrl.trim() || undefined,
+        }),
       });
 
       if (res.status === 429) {
@@ -131,7 +137,7 @@ export function MessageCard() {
       </div>
 
       <div className="relative z-10">
-        <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-4">
+        <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4">
           send me a message
         </h3>
 
@@ -174,6 +180,21 @@ export function MessageCard() {
               exit={{ opacity: 0, y: -8 }}
               className="flex flex-col gap-3"
             >
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                disabled={isBusy}
+                placeholder="your name (optional)"
+                maxLength={100}
+                className="
+                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-cyan-500/40
+                  text-white/80 placeholder:text-white/25 text-sm font-mono
+                  px-3 py-2 outline-none transition-colors duration-150
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+              />
+
               <div className="relative">
                 <textarea
                   ref={textareaRef}
@@ -198,6 +219,20 @@ export function MessageCard() {
                   {charCount}/2000
                 </span>
               </div>
+
+              <input
+                type="url"
+                value={attachmentUrl}
+                onChange={e => setAttachmentUrl(e.target.value)}
+                disabled={isBusy}
+                placeholder="attachment url (optional)"
+                className="
+                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-cyan-500/40
+                  text-white/80 placeholder:text-white/25 text-sm font-mono
+                  px-3 py-2 outline-none transition-colors duration-150
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
+              />
 
               <AnimatePresence>
                 {status === 'error' && (

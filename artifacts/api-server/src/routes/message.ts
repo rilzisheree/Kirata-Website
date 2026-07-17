@@ -28,7 +28,7 @@ router.post("/message", async (req, res) => {
     }
   }
 
-  const { message } = req.body as { message?: string };
+  const { message, name, attachmentUrl } = req.body as { message?: string; name?: string; attachmentUrl?: string };
 
   if (!message || typeof message !== "string" || message.trim().length === 0) {
     return res.status(400).json({ error: "Message is required." });
@@ -39,6 +39,14 @@ router.post("/message", async (req, res) => {
     return res.status(400).json({ error: "Message too long (max 2000 chars)." });
   }
 
+  const senderName = (name && typeof name === "string" && name.trim().length > 0)
+    ? name.trim()
+    : "anonymous";
+
+  const trimmedUrl = (attachmentUrl && typeof attachmentUrl === "string" && attachmentUrl.trim().length > 0)
+    ? attachmentUrl.trim()
+    : null;
+
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
     logger.warn("DISCORD_WEBHOOK_URL not set — message dropped");
@@ -46,20 +54,22 @@ router.post("/message", async (req, res) => {
   }
 
   try {
+    const embed: Record<string, unknown> = {
+      title: "📬 New message from your bio site",
+      description: trimmed,
+      color: 0x06b6d4, // cyan-500
+      fields: [
+        { name: "From", value: senderName, inline: true },
+        ...(trimmedUrl ? [{ name: "Attachment", value: trimmedUrl, inline: false }] : []),
+      ],
+      footer: { text: `ip: ${ip}` },
+      timestamp: new Date().toISOString(),
+    };
+
     const payload = {
       username: "kirata's bio",
       avatar_url: "https://cdn.discordapp.com/embed/avatars/0.png",
-      embeds: [
-        {
-          title: "📬 New message from your bio site",
-          description: trimmed,
-          color: 0x06b6d4, // cyan-500
-          footer: {
-            text: `from: ${ip}`,
-          },
-          timestamp: new Date().toISOString(),
-        },
-      ],
+      embeds: [embed],
     };
 
     const webhookRes = await fetch(webhookUrl, {
