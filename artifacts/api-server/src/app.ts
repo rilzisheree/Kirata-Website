@@ -32,7 +32,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// In production, serve the bio frontend static files and handle SPA routing
 if (process.env.NODE_ENV === "production") {
   const bioPublicDir = path.join(process.cwd(), "artifacts/bio/dist/public");
   app.use(express.static(bioPublicDir));

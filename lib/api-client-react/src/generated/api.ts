@@ -41,8 +41,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
   const result = { queryKey } as T & { queryKey: K };
   for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
     if (key === 'queryKey') continue;
     Object.defineProperty(result, key, {
       enumerable: true,
@@ -108,10 +106,6 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 export type HealthCheckQueryResult = NonNullable<Awaited<ReturnType<typeof healthCheck>>>
 export type HealthCheckQueryError = ErrorType<unknown>
 
-
-/**
- * @summary Health check
- */
 
 export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof healthCheck>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -186,10 +180,6 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 export type GetPresenceQueryResult = NonNullable<Awaited<ReturnType<typeof getPresence>>>
 export type GetPresenceQueryError = ErrorType<unknown>
 
-
-/**
- * @summary Get current presence
- */
 
 export function useGetPresence<TData = Awaited<ReturnType<typeof getPresence>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPresence>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
@@ -335,10 +325,6 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 export type GetSpotifyRecentQueryResult = NonNullable<Awaited<ReturnType<typeof getSpotifyRecent>>>
 export type GetSpotifyRecentQueryError = ErrorType<unknown>
 
-
-/**
- * @summary Get recently played Spotify tracks
- */
 
 export function useGetSpotifyRecent<TData = Awaited<ReturnType<typeof getSpotifyRecent>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}

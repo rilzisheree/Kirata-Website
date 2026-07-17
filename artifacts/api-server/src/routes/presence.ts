@@ -46,10 +46,9 @@ function loadFromDisk(): PresenceStore {
   try {
     const raw = fs.readFileSync(CACHE_FILE, "utf-8");
     const parsed = JSON.parse(raw);
-    // Validate it's at least a plausible shape
     if (parsed && typeof parsed.status === "string") return parsed as PresenceStore;
   } catch {
-    // File doesn't exist or is corrupt — that's fine
+    // ignore
   }
   return { ...DEFAULT_STORE };
 }
@@ -58,14 +57,12 @@ function saveToDisk(store: PresenceStore): void {
   try {
     fs.writeFileSync(CACHE_FILE, JSON.stringify(store), "utf-8");
   } catch {
-    // Non-fatal — keep going even if write fails
+    // ignore
   }
 }
 
-// Boot from last known state (survives process restarts within a deployment)
 let presenceStore: PresenceStore = loadFromDisk();
 
-// GET /api/presence — returns current presence
 router.get("/presence", (req, res) => {
   const parsed = GetPresenceResponse.safeParse(presenceStore);
   if (!parsed.success) {
@@ -77,8 +74,6 @@ router.get("/presence", (req, res) => {
   res.json(parsed.data);
 });
 
-// PUT /api/presence — update presence (called by desktop app)
-// Protected by PRESENCE_SECRET bearer token when the env var is set.
 router.put("/presence", (req, res) => {
   const secret = process.env["PRESENCE_SECRET"];
   if (secret) {

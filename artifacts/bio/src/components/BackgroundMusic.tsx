@@ -24,7 +24,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
   const [open, setOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 
-  // Load the YouTube IFrame API script once on mount
   useEffect(() => {
     if (!document.getElementById('yt-iframe-api')) {
       const script = document.createElement('script');
@@ -34,7 +33,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     }
   }, []);
 
-  // Start player as soon as user has entered (canAutoplay flips to true)
   useEffect(() => {
     if (!canAutoplay) return;
 
@@ -68,7 +66,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     if (window.YT?.Player) {
       initPlayer();
     } else {
-      // API script may still be loading — queue on the callback
       const prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         if (prev) prev();
@@ -81,7 +78,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
     };
   }, [canAutoplay]);
 
-  // Close popup on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -104,14 +100,11 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
   const VolumeIcon = volume === 0 ? VolumeX : volume < 50 ? Volume1 : Volume2;
 
   return (
-    // Always rendered — fixed top-right corner, above entry gate (z-[100])
     <div className="fixed top-4 right-4 z-[110]" ref={popupRef}>
-      {/* Mount point for hidden YouTube player */}
       <div style={{ position: 'fixed', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
         <div ref={mountNodeRef} />
       </div>
 
-      {/* Icon button */}
       <button
         onClick={() => setOpen(v => !v)}
         className="glass-pill w-14 h-14 flex items-center justify-center"
@@ -123,7 +116,6 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
         />
       </button>
 
-      {/* Volume popup */}
       <AnimatePresence>
         {open && (
           <motion.div

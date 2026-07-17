@@ -4,7 +4,6 @@ const router = Router();
 
 let cachedAccessToken: string | null = null;
 let tokenExpiresAt = 0;
-// updated when Spotify returns a rolling refresh token
 let rollingRefreshToken: string | null = null;
 
 function getEnv(key: string): string | null {
@@ -21,7 +20,6 @@ function getRedirectUri(_req: any): string {
   return getEnv("SPOTIFY_REDIRECT_URI") ?? HARDCODED_REDIRECT;
 }
 
-// GET /spotify/auth — start OAuth flow (one-time setup)
 router.get("/spotify/auth", (req, res) => {
   const clientId = getEnv("SPOTIFY_CLIENT_ID");
   if (!clientId) { res.status(500).send("SPOTIFY_CLIENT_ID not set"); return; }
@@ -41,7 +39,6 @@ router.get("/spotify/auth", (req, res) => {
   `);
 });
 
-// GET /spotify/callback — exchange code, store refresh token
 router.get("/spotify/callback", async (req, res) => {
   const code = req.query["code"] as string | undefined;
   if (!code) { res.status(400).send("Missing code"); return; }
@@ -110,7 +107,6 @@ async function getAccessToken(): Promise<string | null> {
   }
 }
 
-// GET /spotify/debug — verify which env vars Railway can see (no values exposed)
 router.get("/spotify/debug", (_req, res) => {
   res.json({
     hasClientId:        !!getEnv("SPOTIFY_CLIENT_ID"),
@@ -122,7 +118,6 @@ router.get("/spotify/debug", (_req, res) => {
   });
 });
 
-// GET /spotify/recent — recently played tracks
 router.get("/spotify/recent", async (req, res) => {
   res.set("Cache-Control", "no-store");
 

@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 type AppIconDef = { slug: string; color: string };
 
 const APP_ICON_DEFS: Record<string, AppIconDef> = {
-  // Apps
   'VS Code':          { slug: 'visualstudiocode',  color: '007ACC' },
   'Google Chrome':    { slug: 'googlechrome',      color: '4285F4' },
   'Firefox':          { slug: 'firefox',           color: 'FF7139' },
@@ -21,7 +20,6 @@ const APP_ICON_DEFS: Record<string, AppIconDef> = {
   'IntelliJ IDEA':    { slug: 'intellijidea',      color: 'FF0000' },
   'WebStorm':         { slug: 'webstorm',          color: '00C0F3' },
   'Notepad++':        { slug: 'notepadplusplus',   color: '90E59A' },
-  // Games
   'VALORANT':         { slug: 'valorant',          color: 'FF4655' },
   'Roblox':           { slug: 'roblox',            color: 'ffffff' },
   'Minecraft':        { slug: 'minecraft',         color: '62B47A' },
@@ -102,7 +100,6 @@ export function PresenceCard() {
   const liveUptime    = useLiveTime((presence as any)?.bootTime);
   const liveTimeSpent = useLiveTime((presence as any)?.activityStartTime);
 
-  // Fall back to server-formatted strings if timestamps aren't present (old agent)
   const uptime    = liveUptime    ?? (presence as any)?.uptime    ?? null;
   const timeSpent = liveTimeSpent ?? (presence as any)?.timeSpent ?? null;
 
@@ -148,14 +145,12 @@ export function PresenceCard() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      {/* Decorative monitor watermark */}
       <div className="absolute top-0 right-0 p-4 opacity-[0.07] pointer-events-none select-none">
         <svg viewBox="0 0 24 24" width="64" height="64" fill="currentColor">
           <path d="M21 2H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7l-2 3v1h8v-1l-2-3h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H3V4h18v12z"/>
         </svg>
       </div>
 
-      {/* Header row */}
       <div className="flex items-center gap-3 relative z-10 mb-4">
         <div className="relative shrink-0">
           <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 overflow-hidden">
@@ -180,7 +175,6 @@ export function PresenceCard() {
         )}
       </div>
 
-      {/* Activity / status details */}
       <div className="pt-3 border-t border-white/5 relative z-10 space-y-1.5">
         {isOffline ? (
           <span className="text-xs text-white/35 font-mono">{offlineMessage}</span>

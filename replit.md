@@ -1,45 +1,37 @@
 # kirata's bio site
 
-A personal bio/portfolio site showing real-time PC presence (what apps/games are running), Discord status, Spotify recent tracks, and a visit counter.
+Personal site showing what I'm up to in real-time — PC presence (apps/games), Discord status, Spotify recent tracks, visit counter.
 
-## Run & Operate
+## Running stuff
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/bio run dev` — frontend
+- `pnpm --filter @workspace/api-server run dev` — API
+- `pnpm run typecheck` — typecheck everything
+- `pnpm run build` — full build
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
+- pnpm monorepo, Node 24, TypeScript 5.9
+- Frontend: React + Vite + Tailwind
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Validation: Zod
+- API hooks: Orval codegen from OpenAPI spec
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/bio/` — React frontend
+- `artifacts/api-server/` — Express API
+- `lib/api-zod/` — Zod schemas (codegen)
+- `lib/api-client-react/` — React Query hooks (codegen)
+- `scripts/pc-agent/` — PowerShell agent that runs on my PC
 
-## Architecture decisions
+## Env vars needed
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- `PRESENCE_SECRET` — shared secret between the PC agent and the API
+- `SESSION_SECRET` — express session secret
+- `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN` — for Spotify recent tracks
+- `VITE_DISCORD_ID` — Discord user ID for Lanyard presence
 
-## Product
+## Deployed on Railway
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+API handles both the backend routes and serves the built frontend in production.

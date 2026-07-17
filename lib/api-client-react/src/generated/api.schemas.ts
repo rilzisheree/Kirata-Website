@@ -39,7 +39,7 @@ export interface Presence {
   /** online | idle | offline */
   status: PresenceStatus;
   /**
-     * Currently open application (legacy, prefer currentApps)
+     * Currently focused app
      * @nullable
      */
   currentApp?: string | null;
@@ -66,7 +66,7 @@ export interface Presence {
      */
   currentSongAlbumArt?: string | null;
   /**
-     * Human-readable time spent in current activity (e.g. "2h 15m") — legacy, prefer activityStartTime
+     * Time spent in current activity
      * @nullable
      */
   timeSpent?: string | null;
@@ -76,21 +76,21 @@ export interface Presence {
      */
   activityIcon?: string | null;
   /**
-     * Human-readable PC uptime (e.g. "3h 24m") — legacy, prefer bootTime
+     * PC uptime
      * @nullable
      */
   uptime?: string | null;
   /**
-     * ISO 8601 timestamp of when the PC last booted
+     * When the PC last booted
      * @nullable
      */
   bootTime?: string | null;
   /**
-     * ISO 8601 timestamp of when the current activity started
+     * When the current activity started
      * @nullable
      */
   activityStartTime?: string | null;
-  /** ISO 8601 timestamp of last update */
+  /** Last updated */
   lastUpdated: string;
 }
 
