@@ -13,6 +13,7 @@ const CACHE_FILE = path.join("/tmp", "presence-cache.json");
 type PresenceStore = {
   status: "online" | "idle" | "offline";
   currentApp: string | null;
+  currentApps: string[];
   currentGame: string | null;
   currentSong: string | null;
   currentSongArtist: string | null;
@@ -28,6 +29,7 @@ type PresenceStore = {
 const DEFAULT_STORE: PresenceStore = {
   status: "offline",
   currentApp: null,
+  currentApps: [],
   currentGame: null,
   currentSong: null,
   currentSongArtist: null,
@@ -97,6 +99,7 @@ router.put("/presence", (req, res) => {
   presenceStore = {
     status: parsed.data.status,
     currentApp: parsed.data.currentApp ?? null,
+    currentApps: parsed.data.currentApps ?? [],
     currentGame: parsed.data.currentGame ?? null,
     currentSong: parsed.data.currentSong ?? null,
     currentSongArtist: parsed.data.currentSongArtist ?? null,

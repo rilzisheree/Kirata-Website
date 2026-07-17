@@ -23,7 +23,8 @@ export const HealthCheckResponse = zod.object({
  */
 export const GetPresenceResponse = zod.object({
   "status": zod.enum(['online', 'idle', 'offline']).describe('online | idle | offline'),
-  "currentApp": zod.string().nullish().describe('Currently open application'),
+  "currentApp": zod.string().nullish().describe('Currently open application (legacy, prefer currentApps)'),
+  "currentApps": zod.array(zod.string()).optional().describe('All currently open\/visible apps'),
   "currentGame": zod.string().nullish().describe('Currently playing game'),
   "currentSong": zod.string().nullish().describe('Currently listening to song'),
   "currentSongArtist": zod.string().nullish().describe('Artist of current song'),
@@ -44,6 +45,7 @@ export const GetPresenceResponse = zod.object({
 export const UpdatePresenceBody = zod.object({
   "status": zod.enum(['online', 'idle', 'offline']),
   "currentApp": zod.string().nullish(),
+  "currentApps": zod.array(zod.string()).optional(),
   "currentGame": zod.string().nullish(),
   "currentSong": zod.string().nullish(),
   "currentSongArtist": zod.string().nullish(),
@@ -57,7 +59,8 @@ export const UpdatePresenceBody = zod.object({
 
 export const UpdatePresenceResponse = zod.object({
   "status": zod.enum(['online', 'idle', 'offline']).describe('online | idle | offline'),
-  "currentApp": zod.string().nullish().describe('Currently open application'),
+  "currentApp": zod.string().nullish().describe('Currently open application (legacy, prefer currentApps)'),
+  "currentApps": zod.array(zod.string()).optional().describe('All currently open\/visible apps'),
   "currentGame": zod.string().nullish().describe('Currently playing game'),
   "currentSong": zod.string().nullish().describe('Currently listening to song'),
   "currentSongArtist": zod.string().nullish().describe('Artist of current song'),

@@ -39,10 +39,12 @@ export interface Presence {
   /** online | idle | offline */
   status: PresenceStatus;
   /**
-     * Currently open application
+     * Currently open application (legacy, prefer currentApps)
      * @nullable
      */
   currentApp?: string | null;
+  /** All currently open/visible apps */
+  currentApps?: string[];
   /**
      * Currently playing game
      * @nullable
@@ -105,6 +107,7 @@ export interface PresenceInput {
   status: PresenceInputStatus;
   /** @nullable */
   currentApp?: string | null;
+  currentApps?: string[];
   /** @nullable */
   currentGame?: string | null;
   /** @nullable */

@@ -11,10 +11,12 @@ export interface Presence {
   /** online | idle | offline */
   status: PresenceStatus;
   /**
-     * Currently open application
+     * Currently open application (legacy, prefer currentApps)
      * @nullable
      */
   currentApp?: string | null;
+  /** All currently open/visible apps */
+  currentApps?: string[];
   /**
      * Currently playing game
      * @nullable

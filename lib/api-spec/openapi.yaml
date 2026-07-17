@@ -121,7 +121,12 @@ components:
           description: "online | idle | offline"
         currentApp:
           type: ["string", "null"]
-          description: Currently open application
+          description: Currently open application (legacy, prefer currentApps)
+        currentApps:
+          type: array
+          items:
+            type: string
+          description: All currently open/visible apps
         currentGame:
           type: ["string", "null"]
           description: Currently playing game
@@ -163,6 +168,10 @@ components:
           enum: [online, idle, offline]
         currentApp:
           type: ["string", "null"]
+        currentApps:
+          type: array
+          items:
+            type: string
         currentGame:
           type: ["string", "null"]
         currentSong:

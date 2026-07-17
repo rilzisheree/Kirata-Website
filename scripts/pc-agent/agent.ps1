@@ -116,6 +116,25 @@ function Get-ForegroundProcessName {
     return $topProc.ProcessName
 }
 
+function Get-AllOpenApps {
+    # Returns display names of all known apps/games that have a visible window
+    $running = Get-Process |
+        Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero -and $_.MainWindowTitle -ne '' } |
+        Select-Object -ExpandProperty ProcessName |
+        ForEach-Object { $_.ToLower() } |
+        Sort-Object -Unique
+
+    $found = [System.Collections.Generic.List[string]]::new()
+    foreach ($proc in $running) {
+        if ($Games.ContainsKey($proc) -and -not $found.Contains($Games[$proc])) {
+            $found.Add($Games[$proc])
+        } elseif ($Apps.ContainsKey($proc) -and -not $found.Contains($Apps[$proc])) {
+            $found.Add($Apps[$proc])
+        }
+    }
+    return $found.ToArray()
+}
+
 function Format-Duration([int]$seconds) {
     if ($seconds -lt 60)   { return "${seconds}s" }
     if ($seconds -lt 3600) { $m = [int]($seconds / 60); return "${m}m" }
@@ -173,19 +192,20 @@ while ($true) {
     $procLower = if ($procName) { $procName.ToLower() } else { "" }
 
     $gameName = $null
-    $appName  = $null
+    $allApps  = @()
 
-    if ($procName -and -not $isIdle) {
-        if ($Games.ContainsKey($procLower)) {
+    if (-not $isIdle) {
+        # Foreground game detection (only one game at a time)
+        if ($procName -and $Games.ContainsKey($procLower)) {
             $gameName = $Games[$procLower]
-        } elseif ($Apps.ContainsKey($procLower)) {
-            $appName = $Apps[$procLower]
-        } else {
-            $appName = (Get-Culture).TextInfo.ToTitleCase($procLower)
         }
+        # All open known apps (visible windows)
+        $allApps = Get-AllOpenApps
+        # Remove any game entries from the apps list
+        $allApps = $allApps | Where-Object { -not ($Games.Values -contains $_) }
     }
 
-    $activityKey = if ($gameName) { "game:$gameName" } elseif ($appName) { "app:$appName" } else { "idle" }
+    $activityKey = if ($gameName) { "game:$gameName" } elseif ($allApps.Count -gt 0) { "apps:" + ($allApps -join ",") } else { "idle" }
     if ($activityKey -ne $currentActivity) {
         $currentActivity = $activityKey
         $activityStart   = Get-Date
@@ -199,18 +219,18 @@ while ($true) {
     $payload = @{
         status      = $status
         currentGame = $gameName
-        currentApp  = $appName
+        currentApps = $allApps
         timeSpent   = $timeSpent
         uptime      = $uptime
     }
 
     $ok = Send-Presence $payload
 
-    $color    = if ($status -eq "online") { "Green" } elseif ($status -eq "idle") { "Yellow" } else { "Gray" }
-    $activity = if ($gameName) { "game: $gameName" } elseif ($appName) { "app: $appName" } else { "(nothing)" }
-    $result   = if ($ok) { "OK" } else { "!!" }
-    $ts       = Get-Date -Format "HH:mm:ss"
-    $line     = "[$ts] $result  $status -- $activity"
+    $color   = if ($status -eq "online") { "Green" } elseif ($status -eq "idle") { "Yellow" } else { "Gray" }
+    $appStr  = if ($gameName) { "game: $gameName" } elseif ($allApps.Count -gt 0) { "apps: " + ($allApps -join ", ") } else { "(nothing)" }
+    $result  = if ($ok) { "OK" } else { "!!" }
+    $ts      = Get-Date -Format "HH:mm:ss"
+    $line    = "[$ts] $result  $status -- $appStr"
     if ($timeSpent) { $line += "  ($timeSpent)" }
     Write-Host $line -ForegroundColor $color
 

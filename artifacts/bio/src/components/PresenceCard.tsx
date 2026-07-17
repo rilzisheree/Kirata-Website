@@ -70,7 +70,8 @@ export function PresenceCard() {
 
   const statusLabel = isOnline ? 'online' : isIdle ? 'idle' : 'offline';
 
-  const currentApp  = presence?.currentApp  ?? null;
+  const currentApps = (presence as any)?.currentApps as string[] | undefined;
+  const currentApp  = (currentApps && currentApps.length > 0) ? null : (presence?.currentApp ?? null);
   const currentGame = presence?.currentGame ?? null;
 
   const idleMessage    = "prob asleep or doing fuck all";
@@ -134,15 +135,25 @@ export function PresenceCard() {
                 )}
               </div>
             )}
-            {currentApp && (
+            {currentApps && currentApps.length > 0 ? (
+              currentApps.map((app, i) => (
+                <div key={app} className="flex items-baseline gap-2">
+                  <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">{i === 0 ? 'using' : ''}</span>
+                  <span className="text-sm font-medium text-white truncate">{app}</span>
+                  {timeSpent && i === currentApps.length - 1 && !currentGame && (
+                    <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
+                  )}
+                </div>
+              ))
+            ) : currentApp ? (
               <div className="flex items-baseline gap-2">
                 <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-16 shrink-0">using</span>
                 <span className="text-sm font-medium text-white truncate">{currentApp}</span>
-                {timeSpent && (
+                {timeSpent && !currentGame && (
                   <span className="ml-auto text-xs text-white/40 font-mono shrink-0">{timeSpent}</span>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
         )}
       </div>

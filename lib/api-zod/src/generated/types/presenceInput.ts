@@ -11,6 +11,7 @@ export interface PresenceInput {
   status: PresenceInputStatus;
   /** @nullable */
   currentApp?: string | null;
+  currentApps?: string[];
   /** @nullable */
   currentGame?: string | null;
   /** @nullable */
