@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { EntryGate } from '../components/EntryGate';
 import { Background } from '../components/Background';
 import { CursorGlow } from '../components/CursorGlow';
@@ -17,8 +17,22 @@ const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["sleeper", "chud", "valorant demon"];
 const DISCORD_USERNAME = "vkirata";
 
+function staggerVariants(delay: number): Variants {
+  return {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.55, delay, ease: [0.25, 0.1, 0.25, 1] },
+    },
+  };
+}
+
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
+  // audioReady: set immediately on click — preserves gesture window for autoplay
+  const [audioReady, setAudioReady] = useState(false);
+  // entered: set after loading sequence + exit animation — gates content stagger
   const [entered, setEntered] = useState(false);
   const [discordOpen, setDiscordOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -28,7 +42,6 @@ export default function BioPage() {
     document.documentElement.classList.add('dark');
   }, []);
 
-  // Close popup when clicking outside
   useEffect(() => {
     if (!discordOpen) return;
     const handler = (e: MouseEvent) => {
@@ -46,18 +59,24 @@ export default function BioPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const animState = entered ? 'visible' : 'hidden';
+
   return (
     <>
-      {!entered && <EntryGate onEnter={() => setEntered(true)} />}
-      <BackgroundMusic canAutoplay={entered} />
+      {/* Gate is always mounted — it controls its own exit via AnimatePresence internally */}
+      <EntryGate
+        onAudioReady={() => setAudioReady(true)}
+        onDone={() => setEntered(true)}
+      />
+      <BackgroundMusic canAutoplay={audioReady} />
       <CursorGlow />
       <Background>
         {/* Profile / Hero */}
-        <motion.div 
+        <motion.div
           className="flex flex-col items-center text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial="hidden"
+          animate={animState}
+          variants={staggerVariants(0.1)}
         >
           <div className="relative mb-6">
             <div className="absolute inset-[-10px] rounded-full avatar-ring z-0" />
@@ -65,11 +84,10 @@ export default function BioPage() {
               <img src="/avatar.jpg" alt="kirata" className="w-full h-full object-cover" />
             </div>
           </div>
-          
+
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-2 text-glow-cyan tracking-tight">
             kirata
           </h1>
-          
 
           <div className="text-lg font-mono text-cyan-400 h-8 flex items-center justify-center">
             {'>'} <span className="ml-2">{typedText}</span><span className="animate-pulse ml-1">_</span>
@@ -77,12 +95,12 @@ export default function BioPage() {
 
           <div className="flex flex-wrap justify-center gap-2 mt-6">
             {BADGES.map((badge, i) => (
-              <motion.div 
+              <motion.div
                 key={badge}
                 className="glass-pill px-4 py-1.5 text-xs font-medium text-white/80"
                 initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + i * 0.1 }}
+                animate={entered ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                transition={{ delay: 0.35 + i * 0.09 }}
               >
                 {badge}
               </motion.div>
@@ -90,15 +108,14 @@ export default function BioPage() {
           </div>
 
           <div className="flex justify-center gap-4 mt-8">
-            {/* Discord — shows popup with username + copy */}
             <div className="relative" ref={popupRef}>
               <motion.button
                 data-testid="button-discord"
                 onClick={() => setDiscordOpen(v => !v)}
                 className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                animate={entered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.55 }}
                 aria-label="Discord"
               >
                 <DiscordIcon size={20} />
@@ -130,7 +147,6 @@ export default function BioPage() {
               </AnimatePresence>
             </div>
 
-            {/* Roblox */}
             <motion.a
               data-testid="link-roblox"
               href="https://www.roblox.com/users/1872507151/profile"
@@ -138,14 +154,13 @@ export default function BioPage() {
               rel="noreferrer"
               className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              animate={entered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.65 }}
               aria-label="Roblox"
             >
               <RobloxIcon size={20} />
             </motion.a>
 
-            {/* Spotify */}
             <motion.a
               data-testid="link-spotify"
               href="https://open.spotify.com/user/k3mx457gl6spsenev0uxsfkw3?si=4529a64f8f1545aa"
@@ -153,8 +168,8 @@ export default function BioPage() {
               rel="noreferrer"
               className="glass-pill w-12 h-12 text-white/70 hover:text-white flex items-center justify-center"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              animate={entered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.75 }}
               aria-label="Spotify"
             >
               <SpotifyIcon size={20} />
@@ -165,9 +180,9 @@ export default function BioPage() {
         {/* About */}
         <motion.div
           className="glass-card p-6 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          initial="hidden"
+          animate={animState}
+          variants={staggerVariants(0.45)}
         >
           <h3 className="text-sm font-display font-bold text-white/40 uppercase tracking-widest mb-3">About</h3>
           <p className="text-white/80 leading-relaxed">
@@ -177,20 +192,30 @@ export default function BioPage() {
           </p>
         </motion.div>
 
-        {/* Cards Grid / Stack */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Cards Grid */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          initial="hidden"
+          animate={animState}
+          variants={staggerVariants(0.65)}
+        >
           <div className="md:col-span-2">
             <PresenceCard />
           </div>
           <DiscordPresence />
           <RecentTracks />
-        </div>
+        </motion.div>
 
         {/* Visit counter */}
-        <div className="flex justify-center pt-4 pb-2">
+        <motion.div
+          className="flex justify-center pt-4 pb-2"
+          initial="hidden"
+          animate={animState}
+          variants={staggerVariants(0.85)}
+        >
           <VisitCounter />
-        </div>
-        
+        </motion.div>
+
       </Background>
     </>
   );
