@@ -15,7 +15,7 @@ function getRefreshToken(): string | null {
   return rollingRefreshToken ?? getEnv("SPOTIFY_REFRESH_TOKEN");
 }
 
-const HARDCODED_REDIRECT = "https://kiratawebsitetesting.up.railway.app/api/spotify/callback";
+const HARDCODED_REDIRECT = "https://kirataslife.space/api/spotify/callback";
 
 function getRedirectUri(_req: any): string {
   return getEnv("SPOTIFY_REDIRECT_URI") ?? HARDCODED_REDIRECT;

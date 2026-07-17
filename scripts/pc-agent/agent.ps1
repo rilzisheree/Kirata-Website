@@ -3,7 +3,7 @@
 # ==============================================================
 #  CONFIG -- edit these two lines before running
 # ==============================================================
-$ApiUrl = "https://kiratawebsitetesting.up.railway.app/api/presence"
+$ApiUrl = "https://kirataslife.space/api/presence"
 $Secret = "imjoo4422"
 
 $IntervalSecs         = 30
