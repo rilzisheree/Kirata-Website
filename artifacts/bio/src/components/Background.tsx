@@ -62,7 +62,7 @@ const Particles = () => {
 
 export function Background({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-[100dvh] w-full overflow-hidden bg-background">
+    <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-background">
       {/* Base Gradient */}
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-950/40 via-background to-background pointer-events-none" />
       

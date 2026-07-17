@@ -4,6 +4,11 @@ export function CursorGlow() {
   const cursorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Don't show on touch devices
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      if (cursorRef.current) cursorRef.current.style.display = 'none';
+      return;
+    }
     const onMove = (e: MouseEvent) => {
       if (cursorRef.current) {
         cursorRef.current.style.transform = `translate(${e.clientX - 8}px, ${e.clientY - 8}px)`;

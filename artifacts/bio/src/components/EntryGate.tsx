@@ -16,8 +16,8 @@ const LOADING_LINES = [
   '> ready.',
 ];
 
-const CHAR_DELAY = 28;  // ms per character
-const LINE_PAUSE  = 180; // ms between lines
+const CHAR_DELAY = 14;  // ms per character
+const LINE_PAUSE  = 80; // ms between lines
 
 export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
   const [phase, setPhase]               = useState<'idle' | 'loading' | 'exiting'>('idle');

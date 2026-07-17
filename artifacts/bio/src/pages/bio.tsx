@@ -6,7 +6,7 @@ import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
 import { LanyardPresence as DiscordPresence } from '../components/DiscordPresence';
 import { RecentTracks } from '../components/RecentTracks';
-import { BackgroundMusic } from '../components/BackgroundMusic';
+import { BackgroundMusic, type BackgroundMusicHandle } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
 import { Check, Copy } from 'lucide-react';
 
@@ -31,7 +31,7 @@ function staggerVariants(delay: number): Variants {
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
   // audioReady: set immediately on click — preserves gesture window for autoplay
-  const [audioReady, setAudioReady] = useState(false);
+  const musicRef = useRef<BackgroundMusicHandle>(null);
   // entered: set after loading sequence + exit animation — gates content stagger
   const [entered, setEntered] = useState(false);
   const [discordOpen, setDiscordOpen] = useState(false);
@@ -65,10 +65,10 @@ export default function BioPage() {
     <>
       {/* Gate is always mounted — it controls its own exit via AnimatePresence internally */}
       <EntryGate
-        onAudioReady={() => setAudioReady(true)}
+        onAudioReady={() => musicRef.current?.play()}
         onDone={() => setEntered(true)}
       />
-      <BackgroundMusic canAutoplay={audioReady} />
+      <BackgroundMusic ref={musicRef} />
       <CursorGlow />
       <Background>
         {/* Profile / Hero */}
