@@ -1,6 +1,6 @@
-# [Project name]
+# kirata's bio site
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A personal bio/portfolio site showing real-time PC presence (what apps/games are running), Discord status, Spotify recent tracks, and a visit counter.
 
 ## Run & Operate
 

@@ -122,7 +122,7 @@ export function PresenceCard() {
           <span className="text-xs text-white/35 font-mono">{offlineMessage}</span>
         ) : isIdle ? (
           <span className="text-xs text-white/35 font-mono">{idleMessage}</span>
-        ) : !currentGame && !currentApp ? (
+        ) : !currentGame && !currentApp && !(currentApps && currentApps.length > 0) ? (
           <span className="text-xs text-white/35 font-mono">doing nothing probably</span>
         ) : (
           <div className="space-y-1.5">
