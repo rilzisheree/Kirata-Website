@@ -37,24 +37,16 @@ function StatusIcon({ status }: { status: string }) {
   );
 }
 
-// ── Discord Nitro badge (teal winged circle) ──────────────────────────────────
+// ── Discord Nitro badge (official CDN icon) ───────────────────────────────────
 function NitroBadge() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" title="Discord Nitro">
-      <defs>
-        <linearGradient id="nitro-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4dc9e6" />
-          <stop offset="100%" stopColor="#2b8fcc" />
-        </linearGradient>
-      </defs>
-      <circle cx="10" cy="10" r="10" fill="url(#nitro-bg)" />
-      {/* Outer ring */}
-      <circle cx="10" cy="10" r="6.5" fill="none" stroke="white" strokeWidth="1.5" />
-      {/* Inner dot */}
-      <circle cx="10" cy="10" r="2.5" fill="white" />
-      {/* Wing swoosh left */}
-      <path d="M3.5 10 C5 6.5 7.5 5 10 5" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
+    <img
+      src="https://cdn.discordapp.com/badge-icons/2ba85e8026a8614b640c2837bcdfe21b.png"
+      alt="Discord Nitro"
+      width={20}
+      height={20}
+      title="Discord Nitro"
+    />
   );
 }
 
