@@ -7,8 +7,6 @@ type AppIconDef = { slug: string; color: string };
 const APP_ICON_DEFS: Record<string, AppIconDef> = {
   // Apps
   'VS Code':          { slug: 'visualstudiocode',  color: '007ACC' },
-  'Windows Terminal': { slug: 'windowsterminal',   color: '4D4D4D' },
-  'PowerShell':       { slug: 'powershell',        color: '5391FE' },
   'Google Chrome':    { slug: 'googlechrome',      color: '4285F4' },
   'Firefox':          { slug: 'firefox',           color: 'FF7139' },
   'Microsoft Edge':   { slug: 'microsoftedge',     color: '0078D7' },
@@ -19,7 +17,7 @@ const APP_ICON_DEFS: Record<string, AppIconDef> = {
   'Slack':            { slug: 'slack',             color: '4A154B' },
   'Notion':           { slug: 'notion',            color: 'ffffff' },
   'Steam':            { slug: 'steam',             color: 'ffffff' },
-  'JetBrains Rider':  { slug: 'rider',             color: '000000' },
+  'JetBrains Rider':  { slug: 'rider',             color: 'FE315D' },
   'IntelliJ IDEA':    { slug: 'intellijidea',      color: 'FF0000' },
   'WebStorm':         { slug: 'webstorm',          color: '00C0F3' },
   'Notepad++':        { slug: 'notepadplusplus',   color: '90E59A' },
@@ -31,26 +29,24 @@ const APP_ICON_DEFS: Record<string, AppIconDef> = {
   'CS:GO':            { slug: 'counter-strike',    color: 'F4A400' },
   'League of Legends':{ slug: 'leagueoflegends',   color: 'C6A84B' },
   'Fortnite':         { slug: 'fortnite',          color: 'ffffff' },
-  'Apex Legends':     { slug: 'apexlegends',       color: 'DA292A' },
-  'Genshin Impact':   { slug: 'genshinimpact',     color: '00B4C6' },
-  'Rocket League':    { slug: 'rocketleague',      color: '2295F3' },
   'Destiny 2':        { slug: 'bungie',            color: 'ffffff' },
-  'Elden Ring':       { slug: 'fromsoftware',      color: 'ffffff' },
   'GTA V':            { slug: 'rockstargames',     color: 'FCAF17' },
 };
 
 function AppIcon({ name, size = 16 }: { name: string; size?: number }) {
   const def = APP_ICON_DEFS[name];
-  if (!def) {
-    return (
-      <span
-        className="shrink-0 flex items-center justify-center rounded bg-white/10 text-[9px] font-bold text-white/60"
-        style={{ width: size, height: size }}
-      >
-        {name[0]}
-      </span>
-    );
-  }
+
+  const fallback = (
+    <span
+      className="shrink-0 flex items-center justify-center rounded bg-white/10 text-[9px] font-bold text-white/60"
+      style={{ width: size, height: size }}
+    >
+      {name[0]}
+    </span>
+  );
+
+  if (!def) return fallback;
+
   return (
     <img
       src={`https://cdn.simpleicons.org/${def.slug}/${def.color}`}
@@ -58,6 +54,14 @@ function AppIcon({ name, size = 16 }: { name: string; size?: number }) {
       width={size}
       height={size}
       className="shrink-0"
+      onError={(e) => {
+        const el = e.currentTarget;
+        el.style.display = 'none';
+        const span = document.createElement('span');
+        span.textContent = name[0];
+        span.style.cssText = `display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:4px;background:rgba(255,255,255,0.1);font-size:9px;font-weight:700;color:rgba(255,255,255,0.6);flex-shrink:0`;
+        el.parentNode?.insertBefore(span, el);
+      }}
     />
   );
 }
