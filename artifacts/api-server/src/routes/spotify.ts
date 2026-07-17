@@ -102,6 +102,17 @@ async function getAccessToken(): Promise<string | null> {
   }
 }
 
+// GET /spotify/debug — check which env vars are present (values hidden)
+router.get("/spotify/debug", (req, res) => {
+  res.json({
+    hasClientId:     !!process.env["SPOTIFY_CLIENT_ID"],
+    hasClientSecret: !!process.env["SPOTIFY_CLIENT_SECRET"],
+    hasRefreshToken: !!process.env["SPOTIFY_REFRESH_TOKEN"],
+    refreshTokenLength: process.env["SPOTIFY_REFRESH_TOKEN"]?.length ?? 0,
+    cachedAccessToken: !!cachedAccessToken,
+  });
+});
+
 // GET /spotify/recent — recently played tracks
 router.get("/spotify/recent", async (req, res) => {
   res.set("Cache-Control", "no-store");
