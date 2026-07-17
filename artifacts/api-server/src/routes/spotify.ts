@@ -120,7 +120,7 @@ router.get("/spotify/debug", (_req, res) => {
 
 let cachedTracks: any[] | null = null;
 let tracksExpiresAt = 0;
-const TRACKS_CACHE_MS = 3 * 60 * 1000; // 3 minutes
+const TRACKS_CACHE_MS = 5 * 60 * 1000; // 5 minutes
 
 router.get("/spotify/recent", async (req, res) => {
   res.set("Cache-Control", "no-store");
