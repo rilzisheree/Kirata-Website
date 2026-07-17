@@ -172,7 +172,7 @@ export function PresenceCard() {
           </div>
         </div>
 
-        {uptime && isOnline && (
+        {uptime && !isOffline && (
           <div className="text-right shrink-0">
             <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">uptime</p>
             <p className="text-xs text-white/50 font-mono">{uptime}</p>

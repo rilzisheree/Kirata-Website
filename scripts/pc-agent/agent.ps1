@@ -144,10 +144,10 @@ function Format-Duration([int]$seconds) {
     return "${h}h ${m}m"
 }
 
-function Get-PCUptime {
+function Get-BootTime {
     try {
         $boot = (Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop).LastBootUpTime
-        return Format-Duration ([int]((Get-Date) - $boot).TotalSeconds)
+        return $boot.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
     } catch {
         return $null
     }
@@ -210,18 +210,17 @@ while ($true) {
         $currentActivity = $activityKey
         $activityStart   = Get-Date
     }
-    $elapsed   = if ($activityStart) { [int]((Get-Date) - $activityStart).TotalSeconds } else { 0 }
-    $timeSpent = if ($elapsed -ge 5) { Format-Duration $elapsed } else { $null }
-    $uptime    = Get-PCUptime
+    $bootTime         = Get-BootTime
+    $activityStartIso = if ($activityStart) { $activityStart.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ") } else { $null }
 
     $status = if ($isIdle) { "idle" } elseif ($procName) { "online" } else { "offline" }
 
     $payload = @{
-        status      = $status
-        currentGame = $gameName
-        currentApps = $allApps
-        timeSpent   = $timeSpent
-        uptime      = $uptime
+        status            = $status
+        currentGame       = $gameName
+        currentApps       = $allApps
+        bootTime          = $bootTime
+        activityStartTime = $activityStartIso
     }
 
     $ok = Send-Presence $payload
@@ -231,7 +230,6 @@ while ($true) {
     $result  = if ($ok) { "OK" } else { "!!" }
     $ts      = Get-Date -Format "HH:mm:ss"
     $line    = "[$ts] $result  $status -- $appStr"
-    if ($timeSpent) { $line += "  ($timeSpent)" }
     Write-Host $line -ForegroundColor $color
 
     Start-Sleep -Seconds $IntervalSecs
