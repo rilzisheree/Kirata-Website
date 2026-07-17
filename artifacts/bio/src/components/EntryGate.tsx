@@ -15,14 +15,6 @@ const BOOT_LINES: { text: string; suffix?: string }[] = [
   { text: '> all systems nominal.', suffix: ' ok' },
 ];
 
-// ── Post-click loading lines ──────────────────────────────────────────────────
-const LOADING_LINES = [
-  '> booting up...',
-  '> loading assets...',
-  '> fetching presence data...',
-  '> establishing connection...',
-  '> ready.',
-];
 
 const CHAR_DELAY = 18;
 const LINE_PAUSE = 120;
@@ -153,16 +145,12 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
     () => setPhase('idle'),
   );
 
-  const load = useTypingSequence(
-    LOADING_LINES,
-    phase === 'loading',
-    () => { setPhase('exiting'); setVisible(false); onDone(); },
-  );
-
   const handleClick = () => {
     if (phase !== 'idle') return;
     onAudioReady();
-    setPhase('loading');
+    setPhase('exiting');
+    setVisible(false);
+    onDone();
   };
 
   return (
@@ -243,38 +231,6 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                 </motion.div>
               )}
 
-              {/* Phase 3 — post-click loading */}
-              {phase === 'loading' && (
-                <motion.div
-                  key="loading"
-                  className="w-full font-mono text-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {load.completedLines.map((line, i) => (
-                    <motion.p
-                      key={i}
-                      className="leading-relaxed"
-                      style={{ color: 'rgba(162,167,210,0.7)' }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.1 }}
-                    >
-                      {line}
-                    </motion.p>
-                  ))}
-                  {load.currentLine && (
-                    <p className="leading-relaxed" style={{ color: 'rgb(162,167,210)' }}>
-                      {load.currentLine}
-                      <span
-                        className="inline-block w-[7px] h-[13px] ml-[2px] align-middle animate-pulse"
-                        style={{ background: 'rgb(162,167,210)' }}
-                      />
-                    </p>
-                  )}
-                </motion.div>
-              )}
 
             </AnimatePresence>
           </div>
