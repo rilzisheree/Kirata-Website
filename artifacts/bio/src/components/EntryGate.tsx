@@ -203,7 +203,7 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.6 }}
                   >
-                    https://kirataslife.space/
+                    kirataslife.space
                   </motion.p>
 
                   <motion.p
