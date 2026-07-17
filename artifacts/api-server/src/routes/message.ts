@@ -8,13 +8,15 @@ const rateLimitStore = new Map<string, number>();
 const COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
 
 router.post("/message", async (req, res) => {
-  const ip =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
-    req.socket.remoteAddress ||
-    "unknown";
+  // Prefer x-forwarded-for (real user IP via Replit proxy) over socket address
+  const forwarded = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim();
+  const socketAddr = req.socket.remoteAddress ?? "unknown";
+  // Skip rate limiting for internal/loopback addresses (health checks, shell tests)
+  const isInternal = !forwarded && (socketAddr === "127.0.0.1" || socketAddr === "::1" || socketAddr === "::ffff:127.0.0.1");
+  const ip = forwarded || socketAddr;
 
-  // Rate limit check
-  const lastSent = rateLimitStore.get(ip);
+  // Rate limit check (skip for internal loopback — those are server-side tests)
+  const lastSent = isInternal ? undefined : rateLimitStore.get(ip);
   if (lastSent !== undefined) {
     const elapsed = Date.now() - lastSent;
     if (elapsed < COOLDOWN_MS) {
