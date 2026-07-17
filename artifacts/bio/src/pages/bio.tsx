@@ -90,7 +90,7 @@ export default function BioPage() {
             kirata
           </h1>
 
-          <div className="text-lg font-mono h-8 flex items-center justify-center" style={{ color: 'hsl(270 80% 72%)' }}>
+          <div className="text-lg font-mono h-8 flex items-center justify-center" style={{ color: 'rgb(162, 167, 210)' }}>
             {'>'} <span className="ml-2">{typedText}</span><span className="animate-pulse ml-1">_</span>
           </div>
 
@@ -185,7 +185,7 @@ export default function BioPage() {
           animate={animState}
           variants={staggerVariants(0.45)}
         >
-          <h3 className="text-sm font-display font-bold text-white/40 uppercase tracking-widest mb-3">About</h3>
+          <h3 className="text-sm font-display font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(162,167,210,0.6)' }}>About</h3>
           <p className="text-white/80 leading-relaxed">
             i play valorant every single day with 4 other chuds lwkeniunkly carrying them<br /><br />
             if i dont respond im probably in bed or sum idk<br /><br />

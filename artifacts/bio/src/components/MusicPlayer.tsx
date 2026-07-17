@@ -27,7 +27,8 @@ export function MusicPlayer({ canAutoplay = false }: MusicPlayerProps) {
           {[0.4, 0.7, 1, 0.6, 0.8].map((delay, i) => (
             <span
               key={i}
-              className="w-[3px] rounded-full bg-purple-500/60"
+              className="w-[3px] rounded-full"
+              style={{ background: 'rgba(162,167,210,0.6)' }}
               style={{
                 height: '100%',
                 animation: `waveBar 1s ease-in-out ${delay * 0.3}s infinite alternate`,

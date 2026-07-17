@@ -169,7 +169,7 @@ export function PresenceCard() {
 
         {uptime && !isOffline && (
           <div className="text-right shrink-0">
-            <p className="text-[10px] text-white/30 font-mono uppercase tracking-widest">uptime</p>
+            <p className="text-[10px] font-mono uppercase tracking-widest" style={{ color: 'rgba(162,167,210,0.45)' }}>uptime</p>
             <p className="text-xs text-white/50 font-mono">{uptime}</p>
           </div>
         )}
@@ -186,7 +186,7 @@ export function PresenceCard() {
           <div className="space-y-2">
             {currentGame && (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">playing</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest w-14 shrink-0" style={{ color: 'rgba(162,167,210,0.55)' }}>playing</span>
                 <AppIcon name={currentGame} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentGame}</span>
                 {timeSpent && (
@@ -200,7 +200,7 @@ export function PresenceCard() {
               <>
                 {currentApps.map((app, i) => (
                   <div key={app} className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">{i === 0 ? 'using' : ''}</span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest w-14 shrink-0" style={{ color: 'rgba(162,167,210,0.55)' }}>{i === 0 ? 'using' : ''}</span>
                     <AppIcon name={app} size={16} />
                     <span className="text-sm font-medium text-white truncate">{app}</span>
                     {timeSpent && i === 0 && !currentGame && (
@@ -213,7 +213,7 @@ export function PresenceCard() {
               </>
             ) : currentApp ? (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-white/35 uppercase tracking-widest w-14 shrink-0">using</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest w-14 shrink-0" style={{ color: 'rgba(162,167,210,0.55)' }}>using</span>
                 <AppIcon name={currentApp} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentApp}</span>
                 {timeSpent && !currentGame && (

@@ -21,7 +21,7 @@ export function VisitCounter() {
 
   return (
     <motion.div
-      className="flex items-center gap-1.5 text-white/35 select-none"
+      className="flex items-center gap-1.5 select-none" style={{ color: 'rgba(162,167,210,0.5)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1, duration: 0.6 }}
