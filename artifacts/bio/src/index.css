@@ -176,6 +176,11 @@
   100% { transform: translate(-10px, 15px) scale(0.97); }
 }
 
+@keyframes barBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }

@@ -198,7 +198,7 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                 >
                   <motion.p
                     className="font-mono text-xs tracking-widest"
-                    style={{ color: 'rgba(162,167,210,0.45)' }}
+                    style={{ color: 'rgba(162,167,210,0.50)' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.6 }}
@@ -213,7 +213,13 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.25, duration: 0.6 }}
                   >
-                    click anywhere to enter
+                    click anywhere to enter<span
+                      className="inline-block w-[2px] h-[0.9em] ml-[6px] align-middle"
+                      style={{
+                        background: '#a2a7d2',
+                        animation: 'barBlink 1.1s step-start infinite',
+                      }}
+                    />
                   </motion.p>
                 </motion.div>
               )}
