@@ -146,7 +146,7 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
         >
           <VolumeIcon
             size={20}
-            className={ready ? 'text-cyan-400' : 'text-white/40'}
+            style={{ color: ready ? '#a2a7d2' : 'rgba(255,255,255,0.4)' }}
           />
         </button>
 
@@ -163,14 +163,14 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
                 Voice of No Return - NieR Automata OST
               </div>
               <div className="flex items-center gap-3">
-                <VolumeIcon size={13} className="text-cyan-400 shrink-0" />
+                <VolumeIcon size={13} className="shrink-0" style={{ color: '#a2a7d2' }} />
                 <input
                   type="range"
                   min={0}
                   max={100}
                   value={volume}
                   onChange={handleVolume}
-                  className="w-full cursor-pointer accent-cyan-400"
+                  className="w-full cursor-pointer accent-[#a2a7d2]"
                   title="Volume"
                 />
                 <span className="text-[10px] font-mono text-white/40 w-6 text-right shrink-0">
