@@ -180,11 +180,11 @@ export default function BioPage() {
 
         {/* Cards Grid / Stack */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DiscordPresence />
-          <MusicPlayer canAutoplay={entered} />
           <div className="md:col-span-2">
             <PresenceCard />
           </div>
+          <DiscordPresence />
+          <MusicPlayer canAutoplay={entered} />
         </div>
 
         {/* Visit counter */}
