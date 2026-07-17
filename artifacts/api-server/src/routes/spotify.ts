@@ -147,7 +147,8 @@ router.get("/spotify/recent", async (req, res) => {
         res.json({ tracks: cachedTracks, cached: true });
         return;
       }
-      res.status(resp.status).json({ error: "Spotify API error" });
+      const errBody = await resp.text().catch(() => "");
+      res.status(resp.status).json({ error: "Spotify API error", status: resp.status, detail: errBody });
       return;
     }
     const data = await resp.json() as any;
