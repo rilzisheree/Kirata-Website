@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const COUNTER_BASE = 'https://api.counterapi.dev/v1/kirata-bio/visits';
+const COUNTER_BASE = 'https://api.counterapi.dev/v1/kirata-bio/visits/';
 const VISITED_KEY = 'kirata_counted';
 
 export function VisitCounter() {
