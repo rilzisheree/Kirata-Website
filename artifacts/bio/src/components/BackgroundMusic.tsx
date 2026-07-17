@@ -55,9 +55,19 @@ export function BackgroundMusic({ canAutoplay = false }: BackgroundMusicProps) {
         },
         events: {
           onReady: (e: any) => {
-            e.target.setVolume(25);
+            // Fade in from 0 → 25 over ~3 seconds
+            e.target.setVolume(0);
             readyRef.current = true;
             setReady(true);
+            let current = 0;
+            const target = 25;
+            const steps = 40;
+            const stepSize = target / steps;
+            const interval = setInterval(() => {
+              current = Math.min(current + stepSize, target);
+              try { e.target.setVolume(Math.round(current)); } catch {}
+              if (current >= target) clearInterval(interval);
+            }, 75); // 40 steps × 75ms ≈ 3 s
           },
         },
       });

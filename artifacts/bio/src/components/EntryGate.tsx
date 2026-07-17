@@ -12,8 +12,8 @@ const LOADING_LINES = [
   '> booting up...',
   '> loading assets...',
   '> fetching presence data...',
-  '> compiling the vibes...',
-  '> all good. welcome :)',
+  '> establishing connection...',
+  '> ready.',
 ];
 
 const CHAR_DELAY = 28;  // ms per character
@@ -121,13 +121,12 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                   </motion.p>
 
                   <motion.h1
-                    className="text-white/80 text-xl sm:text-2xl font-mono tracking-wide"
+                    className="text-white/80 text-xl sm:text-2xl font-mono tracking-wide whitespace-nowrap"
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.9, duration: 0.5 }}
                   >
-                    click to enter
-                    <span className="text-white/30">.. or don't</span>
+                    click to enter<span className="text-white/30">.. or don't</span>
                   </motion.h1>
 
                   <motion.div
