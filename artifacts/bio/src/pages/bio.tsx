@@ -5,7 +5,7 @@ import { Background } from '../components/Background';
 import { CursorGlow } from '../components/CursorGlow';
 import { useTypingEffect } from '../hooks/use-typing';
 import { LanyardPresence as DiscordPresence } from '../components/DiscordPresence';
-import { MusicPlayer } from '../components/MusicPlayer';
+import { RecentTracks } from '../components/RecentTracks';
 import { BackgroundMusic } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
 import { Check, Copy } from 'lucide-react';
@@ -184,7 +184,7 @@ export default function BioPage() {
             <PresenceCard />
           </div>
           <DiscordPresence />
-          <MusicPlayer canAutoplay={entered} />
+          <RecentTracks />
         </div>
 
         {/* Visit counter */}

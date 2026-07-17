@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: presence
     description: Real-time presence operations
+  - name: spotify
+    description: Spotify recently played tracks
 paths:
   /healthz:
     get:
@@ -60,8 +62,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/Presence"
 
+  /spotify/recent:
+    get:
+      operationId: getSpotifyRecent
+      tags: [spotify]
+      summary: Get recently played Spotify tracks
+      responses:
+        "200":
+          description: Recently played tracks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpotifyRecentTracks"
+
 components:
   schemas:
+    SpotifyRecentTracks:
+      type: object
+      required: [tracks]
+      properties:
+        tracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpotifyTrack"
+
+    SpotifyTrack:
+      type: object
+      required: [name, artist, playedAt]
+      properties:
+        name:
+          type: string
+        artist:
+          type: string
+        albumArt:
+          type: ["string", "null"]
+        spotifyUrl:
+          type: ["string", "null"]
+        playedAt:
+          type: string
+
     HealthStatus:
       type: object
       properties:

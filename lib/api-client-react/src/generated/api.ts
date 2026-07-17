@@ -22,7 +22,8 @@ import type {
 import type {
   HealthStatus,
   Presence,
-  PresenceInput
+  PresenceInput,
+  SpotifyRecentTracks
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -279,4 +280,81 @@ export const useUpdatePresence = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getUpdatePresenceMutationOptions(options));
     }
+
+export const getGetSpotifyRecentUrl = () => {
+
+
+
+
+  return `/api/spotify/recent`
+}
+
+/**
+ * @summary Get recently played Spotify tracks
+ */
+export const getSpotifyRecent = async ( options?: RequestInit): Promise<SpotifyRecentTracks> => {
+
+  return customFetch<SpotifyRecentTracks>(getGetSpotifyRecentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSpotifyRecentQueryKey = () => {
+    return [
+    `/api/spotify/recent`
+    ] as const;
+    }
+
+
+export const getGetSpotifyRecentQueryOptions = <TData = Awaited<ReturnType<typeof getSpotifyRecent>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSpotifyRecentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpotifyRecent>>> = ({ signal }) => getSpotifyRecent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSpotifyRecentQueryResult = NonNullable<Awaited<ReturnType<typeof getSpotifyRecent>>>
+export type GetSpotifyRecentQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get recently played Spotify tracks
+ */
+
+export function useGetSpotifyRecent<TData = Awaited<ReturnType<typeof getSpotifyRecent>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSpotifyRecent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSpotifyRecentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

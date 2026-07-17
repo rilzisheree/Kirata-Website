@@ -71,3 +71,17 @@ export const UpdatePresenceResponse = zod.object({
 })
 
 
+/**
+ * @summary Get recently played Spotify tracks
+ */
+export const GetSpotifyRecentResponse = zod.object({
+  "tracks": zod.array(zod.object({
+  "name": zod.string(),
+  "artist": zod.string(),
+  "albumArt": zod.string().nullish(),
+  "spotifyUrl": zod.string().nullish(),
+  "playedAt": zod.string()
+}))
+})
+
+

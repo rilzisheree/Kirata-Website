@@ -5,6 +5,20 @@
  * Personal bio API
  * OpenAPI spec version: 0.1.0
  */
+export interface SpotifyTrack {
+  name: string;
+  artist: string;
+  /** @nullable */
+  albumArt?: string | null;
+  /** @nullable */
+  spotifyUrl?: string | null;
+  playedAt: string;
+}
+
+export interface SpotifyRecentTracks {
+  tracks: SpotifyTrack[];
+}
+
 export interface HealthStatus {
   status: string;
 }
