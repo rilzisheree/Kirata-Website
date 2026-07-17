@@ -26,7 +26,8 @@ function fade(delay: number): Variants {
 export default function BioPage() {
   const typedText = useTypingEffect(PHRASES, 100, 50, 2000);
   const musicRef = useRef<BackgroundMusicHandle>(null);
-  const [entered, setEntered] = useState(false);
+  const alreadyEntered = typeof sessionStorage !== 'undefined' && !!sessionStorage.getItem('bio_entered');
+  const [entered, setEntered] = useState(alreadyEntered);
   const [discordOpen, setDiscordOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -52,7 +53,7 @@ export default function BioPage() {
 
   return (
     <>
-      <EntryGate onAudioReady={() => musicRef.current?.play()} onDone={() => setEntered(true)} />
+      {!alreadyEntered && <EntryGate onAudioReady={() => musicRef.current?.play()} onDone={() => { sessionStorage.setItem('bio_entered', '1'); setEntered(true); }} />}
       <BackgroundMusic ref={musicRef} />
       <Background>
         {/* ── Two-column grid ── */}

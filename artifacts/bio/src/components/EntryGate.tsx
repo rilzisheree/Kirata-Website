@@ -16,8 +16,8 @@ const BOOT_LINES: { text: string; suffix?: string }[] = [
 ];
 
 
-const CHAR_DELAY = 18;
-const LINE_PAUSE = 120;
+const CHAR_DELAY = 10;
+const LINE_PAUSE = 60;
 
 function useTypingSequence(lines: string[], active: boolean, onDone: () => void) {
   const [completedLines, setCompletedLines] = useState<string[]>([]);
@@ -113,7 +113,7 @@ function TerminalCard({ completedLines, currentLine }: { completedLines: string[
       </div>
 
       {/* Body */}
-      <div className="px-5 py-5 min-h-[140px] flex flex-col gap-1.5 font-mono text-sm">
+      <div className="px-5 py-4 min-h-[120px] flex flex-col gap-1 font-mono text-xs">
         {completedLines.map((line, i) => (
           <motion.p key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
             {renderLine(line)}
