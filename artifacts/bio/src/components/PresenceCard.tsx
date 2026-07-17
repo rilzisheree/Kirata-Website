@@ -190,7 +190,7 @@ export function PresenceCard() {
                 <AppIcon name={currentGame} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentGame}</span>
                 {timeSpent && (
-                  <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                  <span className="ml-auto text-[11px] text-purple-400/70 font-mono shrink-0 bg-purple-400/10 px-2 py-0.5 rounded-full">
                     {timeSpent}
                   </span>
                 )}
@@ -204,7 +204,7 @@ export function PresenceCard() {
                     <AppIcon name={app} size={16} />
                     <span className="text-sm font-medium text-white truncate">{app}</span>
                     {timeSpent && i === 0 && !currentGame && (
-                      <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                      <span className="ml-auto text-[11px] text-purple-400/70 font-mono shrink-0 bg-purple-400/10 px-2 py-0.5 rounded-full">
                         {timeSpent}
                       </span>
                     )}
@@ -217,7 +217,7 @@ export function PresenceCard() {
                 <AppIcon name={currentApp} size={16} />
                 <span className="text-sm font-medium text-white truncate">{currentApp}</span>
                 {timeSpent && !currentGame && (
-                  <span className="ml-auto text-[11px] text-cyan-400/70 font-mono shrink-0 bg-cyan-400/10 px-2 py-0.5 rounded-full">
+                  <span className="ml-auto text-[11px] text-purple-400/70 font-mono shrink-0 bg-purple-400/10 px-2 py-0.5 rounded-full">
                     {timeSpent}
                   </span>
                 )}

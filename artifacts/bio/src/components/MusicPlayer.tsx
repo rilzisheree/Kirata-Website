@@ -21,13 +21,13 @@ export function MusicPlayer({ canAutoplay = false }: MusicPlayerProps) {
     >
       {/* Label */}
       <div className="px-5 pt-4 pb-2 flex items-center gap-2">
-        <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest">now playing</span>
+        <span className="text-[10px] font-mono text-purple-400 uppercase tracking-widest">now playing</span>
         {/* Waveform dots — animate while iframe loads */}
         <div className="flex items-end gap-[3px] h-3">
           {[0.4, 0.7, 1, 0.6, 0.8].map((delay, i) => (
             <span
               key={i}
-              className="w-[3px] rounded-full bg-cyan-500/60"
+              className="w-[3px] rounded-full bg-purple-500/60"
               style={{
                 height: '100%',
                 animation: `waveBar 1s ease-in-out ${delay * 0.3}s infinite alternate`,

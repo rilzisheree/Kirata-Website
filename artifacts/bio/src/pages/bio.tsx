@@ -90,7 +90,7 @@ export default function BioPage() {
             kirata
           </h1>
 
-          <div className="text-lg font-mono text-cyan-400 h-8 flex items-center justify-center">
+          <div className="text-lg font-mono h-8 flex items-center justify-center" style={{ color: 'hsl(270 80% 72%)' }}>
             {'>'} <span className="ml-2">{typedText}</span><span className="animate-pulse ml-1">_</span>
           </div>
 
@@ -140,7 +140,7 @@ export default function BioPage() {
                         className="ml-auto text-white/50 hover:text-white transition-colors"
                         aria-label="Copy username"
                       >
-                        {copied ? <Check size={14} className="text-cyan-400" /> : <Copy size={14} />}
+                        {copied ? <Check size={14} style={{ color: 'hsl(270 80% 72%)' }} /> : <Copy size={14} />}
                       </button>
                     </div>
                   </motion.div>

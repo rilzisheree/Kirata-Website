@@ -150,7 +150,7 @@ export function MessageCard() {
               exit={{ opacity: 0, y: -8 }}
               className="flex flex-col items-center gap-3 py-6 text-center"
             >
-              <CheckCircle size={28} className="text-cyan-400" />
+              <CheckCircle size={28} className="text-purple-400" />
               <p className="text-sm text-white/70 font-mono">message sent</p>
               <p className="text-xs text-white/35 font-mono">
                 you can send another in {formatCountdown(remaining)}
@@ -168,7 +168,7 @@ export function MessageCard() {
               <p className="text-sm text-white/50 font-mono">
                 {errorText || 'already sent one recently'}
               </p>
-              <p className="text-xs text-cyan-400/60 font-mono tabular-nums">
+              <p className="text-xs text-purple-400/60 font-mono tabular-nums">
                 {formatCountdown(remaining)}
               </p>
             </motion.div>
@@ -188,7 +188,7 @@ export function MessageCard() {
                 placeholder="your name (optional)"
                 maxLength={100}
                 className="
-                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-cyan-500/40
+                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-purple-500/40
                   text-white/80 placeholder:text-white/25 text-sm font-mono
                   px-3 py-2 outline-none transition-colors duration-150
                   disabled:opacity-50 disabled:cursor-not-allowed
@@ -206,7 +206,7 @@ export function MessageCard() {
                   rows={4}
                   className={`
                     w-full resize-none rounded-lg bg-white/5 border
-                    ${overLimit ? 'border-red-500/50' : 'border-white/10 focus:border-cyan-500/40'}
+                    ${overLimit ? 'border-red-500/50' : 'border-white/10 focus:border-purple-500/40'}
                     text-white/80 placeholder:text-white/25 text-sm font-mono
                     px-3 py-2.5 outline-none transition-colors duration-150
                     disabled:opacity-50 disabled:cursor-not-allowed
@@ -227,7 +227,7 @@ export function MessageCard() {
                 disabled={isBusy}
                 placeholder="attachment url (optional)"
                 className="
-                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-cyan-500/40
+                  w-full rounded-lg bg-white/5 border border-white/10 focus:border-purple-500/40
                   text-white/80 placeholder:text-white/25 text-sm font-mono
                   px-3 py-2 outline-none transition-colors duration-150
                   disabled:opacity-50 disabled:cursor-not-allowed
@@ -259,12 +259,12 @@ export function MessageCard() {
                   className="
                     ml-auto flex items-center gap-2
                     px-4 py-2 rounded-lg text-xs font-mono
-                    bg-cyan-500/15 hover:bg-cyan-500/25
-                    border border-cyan-500/20 hover:border-cyan-500/40
-                    text-cyan-400 hover:text-cyan-300
+                    bg-purple-500/15 hover:bg-purple-500/25
+                    border border-purple-500/20 hover:border-purple-500/40
+                    text-purple-400 hover:text-purple-300
                     transition-all duration-150
                     disabled:opacity-40 disabled:cursor-not-allowed
-                    disabled:hover:bg-cyan-500/15 disabled:hover:border-cyan-500/20
+                    disabled:hover:bg-purple-500/15 disabled:hover:border-purple-500/20
                   "
                 >
                   {status === 'sending' ? (

@@ -64,12 +64,12 @@ export function Background({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-[100dvh] w-full overflow-x-hidden bg-background">
       {/* Base Gradient */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-950/40 via-background to-background pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-950/40 via-background to-background pointer-events-none" />
       
       {/* Ambient blobs */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-5%] left-[-5%] w-[380px] h-[380px] rounded-full bg-cyan-500/10 blur-[70px] blob-animate" />
-        <div className="absolute bottom-[-5%] right-[-5%] w-[420px] h-[420px] rounded-full bg-teal-500/8 blur-[80px] blob-animate" style={{ animationDelay: '-10s' }} />
+        <div className="absolute top-[-5%] left-[-5%] w-[380px] h-[380px] rounded-full bg-purple-500/10 blur-[70px] blob-animate" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[420px] h-[420px] rounded-full bg-violet-500/8 blur-[80px] blob-animate" style={{ animationDelay: '-10s' }} />
       </div>
 
       <Particles />
