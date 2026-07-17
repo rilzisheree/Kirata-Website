@@ -75,11 +75,17 @@ export function MessageCard() {
       if (res.status === 429) {
         const data = await res.json().catch(() => ({}));
         const mins = data.retryAfterMinutes ?? 30;
-        setErrorText(`chill out, try again in ${mins} min`);
-        setStatus('rate_limited');
-        // Sync localStorage in case the server-side timer is ahead
+        // Sync localStorage so the countdown is accurate
         localStorage.setItem(LS_KEY, String(Date.now() - (COOLDOWN_MS - mins * 60 * 1000)));
         setRemaining(getRemainingMs());
+        setStatus('rate_limited');
+        setErrorText('');
+        return;
+      }
+
+      if (res.status === 503) {
+        setErrorText('messaging unavailable right now');
+        setStatus('error');
         return;
       }
 
