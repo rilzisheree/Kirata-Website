@@ -21,7 +21,7 @@ export function MusicPlayer({ canAutoplay = false }: MusicPlayerProps) {
     >
       {/* Label */}
       <div className="px-5 pt-4 pb-2 flex items-center gap-2">
-        <span className="text-[10px] font-mono text-purple-400 uppercase tracking-widest">now playing</span>
+        <span className="text-[10px] font-mono text-[#a2a7d2] uppercase tracking-widest">now playing</span>
         {/* Waveform dots — animate while iframe loads */}
         <div className="flex items-end gap-[3px] h-3">
           {[0.4, 0.7, 1, 0.6, 0.8].map((delay, i) => (

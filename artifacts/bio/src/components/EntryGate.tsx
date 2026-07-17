@@ -87,11 +87,11 @@ function TerminalCard({ completedLines, currentLine }: { completedLines: string[
     return (
       <span>
         <span className="text-white/75">{base}</span>
-        {suffix && <span style={{ color: 'hsl(270 80% 70%)' }} className="font-semibold">{suffix}</span>}
+        {suffix && <span style={{ color: 'rgb(162, 167, 210)' }} className="font-semibold">{suffix}</span>}
         {isCurrent && (
           <span
             className="inline-block w-[7px] h-[13px] ml-[2px] align-middle animate-pulse"
-            style={{ background: 'hsl(270 80% 70%)' }}
+            style={{ background: 'rgb(162, 167, 210)' }}
           />
         )}
       </span>
@@ -102,9 +102,9 @@ function TerminalCard({ completedLines, currentLine }: { completedLines: string[
     <motion.div
       className="w-full max-w-sm rounded-xl overflow-hidden shadow-2xl"
       style={{
-        background: 'hsl(270 15% 7%)',
+        background: 'hsl(234 15% 7%)',
         border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 0 60px -10px hsla(270,70%,60%,0.12)',
+        boxShadow: '0 0 60px -10px rgba(162,167,210,0.12)',
       }}
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -256,7 +256,7 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                     <motion.p
                       key={i}
                       className="leading-relaxed"
-                      style={{ color: 'hsla(270,70%,75%,0.7)' }}
+                      style={{ color: 'rgba(162,167,210,0.7)' }}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.1 }}
@@ -265,11 +265,11 @@ export function EntryGate({ onAudioReady, onDone }: EntryGateProps) {
                     </motion.p>
                   ))}
                   {load.currentLine && (
-                    <p className="leading-relaxed" style={{ color: 'hsl(270 80% 80%)' }}>
+                    <p className="leading-relaxed" style={{ color: 'rgb(162,167,210)' }}>
                       {load.currentLine}
                       <span
                         className="inline-block w-[7px] h-[13px] ml-[2px] align-middle animate-pulse"
-                        style={{ background: 'hsl(270 80% 75%)' }}
+                        style={{ background: 'rgb(162,167,210)' }}
                       />
                     </p>
                   )}

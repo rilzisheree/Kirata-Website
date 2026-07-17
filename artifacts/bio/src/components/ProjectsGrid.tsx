@@ -10,7 +10,7 @@ export function ProjectsGrid() {
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
       >
-        <span className="text-purple-400 text-xl">{'//'}</span> Featured Work
+        <span className="text-[#a2a7d2] text-xl">{'//'}</span> Featured Work
       </motion.h3>
 
       <motion.div
