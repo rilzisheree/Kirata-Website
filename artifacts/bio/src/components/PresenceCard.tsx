@@ -74,7 +74,7 @@ export function PresenceCard() {
   const currentGame = presence?.currentGame ?? null;
 
   const idleMessage    = "prob asleep or doing fuck all";
-  const offlineMessage = "pc's off n js asleep asleep";
+  const offlineMessage = "pc's off n js asleep";
 
   return (
     <motion.div
