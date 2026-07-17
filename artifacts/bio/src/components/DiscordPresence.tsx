@@ -114,7 +114,6 @@ export function LanyardPresence() {
       <div className="pt-9 px-5 pb-5 flex flex-col flex-1">
         <div className="relative z-10">
           <h3 className="font-bold text-white tracking-wide">{data.discord_user.username}</h3>
-          <p className="text-xs text-white/60 font-mono mt-0.5">Discord Presence</p>
         </div>
 
       {!activity && !data.spotify && (
