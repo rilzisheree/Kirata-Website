@@ -93,8 +93,8 @@ export function PresenceCard() {
       {/* Header row */}
       <div className="flex items-center gap-3 relative z-10 mb-4">
         <div className="relative shrink-0">
-          <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-lg">
-            💻
+          <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 overflow-hidden">
+            <img src="/avatar.jpg" alt="kirata" className="w-full h-full object-cover" />
           </div>
           <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#0a0a16] ${statusDotColor}`} />
         </div>
