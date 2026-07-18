@@ -24,6 +24,9 @@ type PresenceStore = {
   bootTime: string | null;
   activityStartTime: string | null;
   lastUpdated: string;
+  cpuPercent: number | null;
+  ramPercent: number | null;
+  gpuPercent: number | null;
 };
 
 const DEFAULT_STORE: PresenceStore = {
@@ -40,6 +43,9 @@ const DEFAULT_STORE: PresenceStore = {
   bootTime: null,
   activityStartTime: null,
   lastUpdated: new Date().toISOString(),
+  cpuPercent: null,
+  ramPercent: null,
+  gpuPercent: null,
 };
 
 function loadFromDisk(): PresenceStore {
@@ -105,6 +111,9 @@ router.put("/presence", (req, res) => {
     bootTime: parsed.data.bootTime ?? null,
     activityStartTime: parsed.data.activityStartTime ?? null,
     lastUpdated: new Date().toISOString(),
+    cpuPercent: parsed.data.cpuPercent ?? null,
+    ramPercent: parsed.data.ramPercent ?? null,
+    gpuPercent: parsed.data.gpuPercent ?? null,
   };
 
   saveToDisk(presenceStore);

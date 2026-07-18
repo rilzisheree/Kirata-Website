@@ -153,6 +153,38 @@ function Get-BootTime {
     }
 }
 
+function Get-SystemStats {
+    $cpu = $null
+    $ram = $null
+    $gpu = $null
+
+    # CPU usage
+    try {
+        $cpu = [Math]::Round((Get-WmiObject -Class Win32_Processor -ErrorAction Stop |
+            Measure-Object -Property LoadPercentage -Average).Average)
+    } catch {}
+
+    # RAM usage
+    try {
+        $os  = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
+        $ram = [Math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize * 100)
+    } catch {}
+
+    # GPU usage via performance counters (3D engine)
+    try {
+        $samples = (Get-Counter '\GPU Engine(*engtype_3D)\Utilization Percentage' -ErrorAction Stop).CounterSamples |
+            Where-Object { $_.CookedValue -gt 0 }
+        if ($samples) {
+            $gpu = [Math]::Round(($samples | Measure-Object CookedValue -Sum).Sum)
+            if ($gpu -gt 100) { $gpu = 100 }
+        } else {
+            $gpu = 0
+        }
+    } catch {}
+
+    return @{ cpu = $cpu; ram = $ram; gpu = $gpu }
+}
+
 function Send-Presence($body) {
     try {
         $json    = $body | ConvertTo-Json -Compress
@@ -212,6 +244,7 @@ while ($true) {
     }
     $bootTime         = Get-BootTime
     $activityStartIso = if ($activityStart) { $activityStart.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ") } else { $null }
+    $stats            = Get-SystemStats
 
     $status = if ($isIdle) { "idle" } elseif ($procName) { "online" } else { "offline" }
 
@@ -221,6 +254,9 @@ while ($true) {
         currentApps       = $allApps
         bootTime          = $bootTime
         activityStartTime = $activityStartIso
+        cpuPercent        = $stats.cpu
+        ramPercent        = $stats.ram
+        gpuPercent        = $stats.gpu
     }
 
     $ok = Send-Presence $payload

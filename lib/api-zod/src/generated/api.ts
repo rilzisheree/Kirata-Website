@@ -27,7 +27,10 @@ export const GetPresenceResponse = zod.object({
   "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\") — legacy, prefer bootTime'),
   "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
   "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started'),
-  "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update')
+  "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update'),
+  "cpuPercent": zod.number().nullish().describe('CPU usage 0-100'),
+  "ramPercent": zod.number().nullish().describe('RAM usage 0-100'),
+  "gpuPercent": zod.number().nullish().describe('GPU usage 0-100')
 })
 
 
@@ -47,7 +50,10 @@ export const UpdatePresenceBody = zod.object({
   "activityIcon": zod.string().nullish(),
   "uptime": zod.string().nullish(),
   "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
-  "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started')
+  "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started'),
+  "cpuPercent": zod.number().nullish(),
+  "ramPercent": zod.number().nullish(),
+  "gpuPercent": zod.number().nullish()
 })
 
 export const UpdatePresenceResponse = zod.object({
@@ -63,7 +69,10 @@ export const UpdatePresenceResponse = zod.object({
   "uptime": zod.string().nullish().describe('Human-readable PC uptime (e.g. \"3h 24m\") — legacy, prefer bootTime'),
   "bootTime": zod.string().nullish().describe('ISO 8601 timestamp of when the PC last booted'),
   "activityStartTime": zod.string().nullish().describe('ISO 8601 timestamp of when the current activity started'),
-  "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update')
+  "lastUpdated": zod.string().describe('ISO 8601 timestamp of last update'),
+  "cpuPercent": zod.number().nullish().describe('CPU usage 0-100'),
+  "ramPercent": zod.number().nullish().describe('RAM usage 0-100'),
+  "gpuPercent": zod.number().nullish().describe('GPU usage 0-100')
 })
 
 

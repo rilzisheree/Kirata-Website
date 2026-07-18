@@ -175,6 +175,28 @@ export function PresenceCard() {
         )}
       </div>
 
+      {/* CPU / RAM / GPU bars — only show when online and data is present */}
+      {isOnline && ((presence as any)?.cpuPercent != null || (presence as any)?.ramPercent != null || (presence as any)?.gpuPercent != null) && (
+        <div className="mb-4 space-y-1.5 relative z-10">
+          {[
+            { label: 'CPU', value: (presence as any)?.cpuPercent as number | null, color: '#a78bfa' },
+            { label: 'RAM', value: (presence as any)?.ramPercent as number | null, color: '#60a5fa' },
+            { label: 'GPU', value: (presence as any)?.gpuPercent as number | null, color: '#34d399' },
+          ].map(({ label, value, color }) => value != null && (
+            <div key={label} className="flex items-center gap-2">
+              <span className="text-[10px] font-mono w-7 shrink-0" style={{ color: 'rgba(162,167,210,0.55)' }}>{label}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${value}%`, backgroundColor: color, opacity: 0.8 }}
+                />
+              </div>
+              <span className="text-[10px] font-mono w-7 text-right shrink-0" style={{ color: 'rgba(162,167,210,0.5)' }}>{value}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="pt-3 border-t border-white/5 relative z-10 space-y-1.5">
         {isOffline ? (
           <span className="text-xs text-white/35 font-mono">{offlineMessage}</span>
