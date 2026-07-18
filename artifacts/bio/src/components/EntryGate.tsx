@@ -13,7 +13,7 @@ const BOOT_LINES: { text: string; suffix?: string }[] = [
   { text: '> loading assets...', suffix: ' done' },
   { text: '> fetching presence data...', suffix: ' done' },
   { text: '> establishing connection...', suffix: ' done' },
-  { text: '> all systems nominal.', suffix: ' done' },
+  { text: '> access granted.', suffix: ' done' },
 ];
 
 

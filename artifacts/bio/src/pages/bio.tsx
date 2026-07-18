@@ -154,8 +154,6 @@ export default function BioPage() {
             <motion.div className="glass-card p-5" initial="hidden" animate={s} variants={fade(0.4)}>
               <h3 className="text-xs font-mono uppercase tracking-widest mb-3" style={{ color: 'rgba(162,167,210,0.6)' }}>About</h3>
               <p className="text-white/75 leading-relaxed text-sm">
-                i play valorant every single day with 4 other chuds lwkeniunkly carrying them<br /><br />
-                if i dont respond im probably in bed or sum idk<br /><br />
                 dm me multiple times if i dont respond
               </p>
             </motion.div>
