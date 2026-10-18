@@ -1,0 +1,209 @@
+.cinematic-experience {
+  --cinema-night: #09080d;
+  --cinema-paper: #f7f5ef;
+  --cinema-ink: #393431;
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  color: #f7f5ef;
+  background: var(--cinema-night);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cinematic-experience__scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.cinematic-experience__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 25% 24% at 50% 49%, rgba(209, 119, 227, 0.16), rgba(133, 54, 161, 0.32) 34%, transparent 100%),
+    radial-gradient(ellipse 72% 70% at 50% 50%, rgba(42, 21, 58, 0.45), transparent 76%);
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+.cinematic-experience--dark .cinematic-experience__glow,
+.cinematic-experience--opening .cinematic-experience__glow {
+  opacity: 1;
+}
+
+.cinematic-experience__glyphs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+
+.cinematic-experience--dark .cinematic-experience__glyphs,
+.cinematic-experience--opening .cinematic-experience__glyphs {
+  opacity: 1;
+}
+
+.cinematic-experience__glyph {
+  position: absolute;
+  color: rgba(230, 221, 240, 0.11);
+  font-family: 'Caveat', cursive;
+  font-size: clamp(2.1rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+  user-select: none;
+  animation: cinema-drift 18s ease-in-out infinite alternate;
+}
+
+.cinematic-experience__glyph:nth-child(1) {
+  top: 17%;
+  left: 12%;
+  transform: rotate(-13deg);
+  animation-delay: -4s;
+}
+
+.cinematic-experience__glyph:nth-child(2) {
+  top: 68%;
+  left: 19%;
+  font-size: clamp(1.7rem, 3.5vw, 3.1rem);
+  transform: rotate(9deg);
+  animation-delay: -10s;
+}
+
+.cinematic-experience__glyph:nth-child(3) {
+  top: 24%;
+  right: 15%;
+  font-size: clamp(1.8rem, 4vw, 3.7rem);
+  transform: rotate(12deg);
+  animation-delay: -14s;
+}
+
+.cinematic-experience__glyph:nth-child(4) {
+  right: 13%;
+  bottom: 16%;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  transform: rotate(-8deg);
+  animation-delay: -7s;
+}
+
+.cinematic-experience__copy {
+  position: relative;
+  z-index: 1;
+  width: min(88vw, 58rem);
+  margin: 0;
+  padding: 2rem 1.25rem;
+  color: #f4f0f5;
+  font-family: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  font-size: clamp(2.25rem, 5.35vw, 4.55rem);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.005em;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 1px 18px rgba(10, 7, 15, 0.12);
+  user-select: none;
+}
+
+.cinematic-experience--light .cinematic-experience__copy,
+.cinematic-experience--ending .cinematic-experience__copy {
+  color: var(--cinema-ink);
+  text-shadow: none;
+}
+
+.cinematic-experience--light .cinematic-experience__copy {
+  font-size: clamp(1.45rem, 2.6vw, 2.35rem);
+  line-height: 1.35;
+}
+
+.cinematic-experience--ending .cinematic-experience__copy {
+  color: #b8b1be;
+}
+
+.cinematic-experience__fallback {
+  position: absolute;
+  z-index: 2;
+  bottom: max(1.35rem, env(safe-area-inset-bottom));
+  left: 50%;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  margin: 0;
+  color: rgba(244, 240, 245, 0.48);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.cinematic-experience--light .cinematic-experience__fallback,
+.cinematic-experience--ending .cinematic-experience__fallback {
+  color: rgba(57, 52, 49, 0.5);
+}
+
+.cinematic-experience--ending .cinematic-experience__fallback {
+  color: rgba(225, 219, 229, 0.45);
+}
+
+@keyframes cinema-drift {
+  from {
+    translate: -4px 4px;
+    rotate: -3deg;
+  }
+  to {
+    translate: 8px -7px;
+    rotate: 3deg;
+  }
+}
+
+@media (max-width: 520px) {
+  .cinematic-experience__copy {
+    width: 92vw;
+    padding-inline: 0.5rem;
+    font-size: clamp(2.15rem, 9vw, 3.25rem);
+    line-height: 1.18;
+  }
+
+  .cinematic-experience__glyph:nth-child(1) {
+    left: 4%;
+  }
+
+  .cinematic-experience__glyph:nth-child(2) {
+    left: 7%;
+  }
+
+  .cinematic-experience__glyph:nth-child(3) {
+    right: 6%;
+  }
+
+  .cinematic-experience__glyph:nth-child(4) {
+    right: 5%;
+  }
+
+  .cinematic-experience--light .cinematic-experience__copy {
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-experience__glyph {
+    animation: none;
+  }
+
+  .cinematic-experience__glow,
+  .cinematic-experience__glyphs {
+    transition-duration: 0.01ms;
+  }
+}

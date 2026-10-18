@@ -28,8 +28,8 @@ export function MusicPlayer({ canAutoplay = false }: MusicPlayerProps) {
             <span
               key={i}
               className="w-[3px] rounded-full"
-              style={{ background: 'rgba(162,167,210,0.6)' }}
               style={{
+                background: 'rgba(162,167,210,0.6)',
                 height: '100%',
                 animation: `waveBar 1s ease-in-out ${delay * 0.3}s infinite alternate`,
               }}

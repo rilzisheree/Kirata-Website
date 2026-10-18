@@ -8,13 +8,16 @@ import { RecentTracks } from '../components/RecentTracks';
 import { BackgroundMusic, type BackgroundMusicHandle } from '../components/BackgroundMusic';
 import { VisitCounter } from '../components/VisitCounter';
 import { MessageCard } from '../components/MessageCard';
-import { Check, Copy } from 'lucide-react';
+import { ArrowUpRight, Check, Copy } from 'lucide-react';
 import { DiscordIcon, RobloxIcon, SpotifyIcon } from '../components/SocialIcons';
 import { PresenceCard } from '../components/PresenceCard';
+import { CinematicExperience } from '../components/cinematic/CinematicExperience';
 
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["sleeper", "chud", "valorant demon"];
 const DISCORD_USERNAME = "vkirata";
+const CINEMATIC_AUDIO_SRC =
+  import.meta.env.VITE_CINEMATIC_AUDIO_SRC || `${import.meta.env.BASE_URL}cinematic-audio.mp3`;
 
 function fade(delay: number): Variants {
   return {
@@ -30,6 +33,9 @@ export default function BioPage() {
   const [entered, setEntered] = useState(false);
   const [discordOpen, setDiscordOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cinematicOpen, setCinematicOpen] = useState(false);
+  const [cinematicAudioUnavailable, setCinematicAudioUnavailable] = useState(false);
+  const cinematicAudioRef = useRef<HTMLAudioElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.documentElement.classList.add('dark'); }, []);
@@ -49,12 +55,52 @@ export default function BioPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCinematicOpen = () => {
+    setCinematicAudioUnavailable(false);
+    musicRef.current?.pause();
+
+    const audio = cinematicAudioRef.current;
+    if (!audio) {
+      setCinematicAudioUnavailable(true);
+    } else {
+      audio.volume = 0.78;
+      audio.currentTime = 0;
+      void audio.play().catch(() => setCinematicAudioUnavailable(true));
+    }
+
+    setCinematicOpen(true);
+  };
+
+  const handleCinematicClose = () => {
+    const audio = cinematicAudioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    musicRef.current?.resume();
+    setCinematicOpen(false);
+  };
+
   const s = entered ? 'visible' : 'hidden';
 
   return (
     <>
       <EntryGate skipBoot={skipBoot} onAudioReady={() => musicRef.current?.play()} onDone={() => { sessionStorage.setItem('bio_visited', '1'); setEntered(true); }} />
       <BackgroundMusic ref={musicRef} />
+      <audio
+        ref={cinematicAudioRef}
+        src={CINEMATIC_AUDIO_SRC}
+        preload="auto"
+        aria-hidden="true"
+      />
+      {cinematicOpen && (
+        <CinematicExperience
+          audioElement={cinematicAudioRef.current}
+          audioUnavailable={cinematicAudioUnavailable}
+          onAudioUnavailable={() => setCinematicAudioUnavailable(true)}
+          onClose={handleCinematicClose}
+        />
+      )}
       <Background>
         {/* ── Two-column grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 items-start">
@@ -157,6 +203,26 @@ export default function BioPage() {
                 dm me multiple times if i dont respond
               </p>
             </motion.div>
+
+            <motion.button
+              type="button"
+              data-testid="button-enter-cinematic"
+              onClick={handleCinematicOpen}
+              className="glass-card w-full px-5 py-4 flex items-center justify-between text-left group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a2a7d2]"
+              initial="hidden"
+              animate={s}
+              variants={fade(0.5)}
+              aria-label="Enter the story"
+            >
+              <span className="text-xs font-mono uppercase tracking-[0.18em] text-white/55 group-hover:text-white/90 transition-colors">
+                a small story
+              </span>
+              <ArrowUpRight
+                size={16}
+                aria-hidden="true"
+                className="text-white/35 group-hover:text-[#a2a7d2] transition-colors"
+              />
+            </motion.button>
 
             {/* Visit counter */}
             <motion.div className="flex justify-center lg:justify-start pl-1" initial="hidden" animate={s} variants={fade(0.9)}>

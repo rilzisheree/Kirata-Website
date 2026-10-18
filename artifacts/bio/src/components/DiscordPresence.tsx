@@ -53,7 +53,7 @@ function NitroBadge() {
 // ── Discord Server Booster badge (pink upward triangle) ───────────────────────
 function BoosterBadge() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" title="Server Booster">
+    <svg width="20" height="20" viewBox="0 0 20 20" role="img" aria-label="Server Booster">
       <defs>
         <linearGradient id="boost-bg" x1="0%" y1="100%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#f47fff" />

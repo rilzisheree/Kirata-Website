@@ -6,6 +6,7 @@ Personal site showing what I'm up to in real-time — PC presence (apps/games), 
 
 - `pnpm --filter @workspace/bio run dev` — frontend
 - `pnpm --filter @workspace/api-server run dev` — API
+- Replit's `artifacts/bio: web` preview uses the same frontend command.
 - `pnpm run typecheck` — typecheck everything
 - `pnpm run build` — full build
 

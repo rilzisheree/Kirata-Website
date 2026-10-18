@@ -14,6 +14,10 @@ declare global {
 export interface BackgroundMusicHandle {
   /** Call this synchronously inside a user-gesture handler to unlock audio on iOS. */
   play: () => void;
+  /** Temporarily stop the site's soundtrack during a fullscreen experience. */
+  pause: () => void;
+  /** Resume the soundtrack only if it was playing before it was paused. */
+  resume: () => void;
 }
 
 interface BackgroundMusicProps {}
@@ -23,9 +27,11 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
     const playerRef    = useRef<any>(null);
     const mountNodeRef = useRef<HTMLDivElement>(null);
     const [volume, setVolume] = useState(25);
+    const volumeRef = useRef(25);
     const [ready, setReady]   = useState(false);
     const readyRef    = useRef(false);
     const pendingPlay = useRef(false); // set true if play() called before onReady
+    const resumeAfterSuspend = useRef(false);
     const [open, setOpen] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
 
@@ -34,16 +40,35 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
       play() {
         if (readyRef.current && playerRef.current) {
           playerRef.current.playVideo();
-          fadeIn();
+          fadeIn(volumeRef.current);
+        } else {
+          pendingPlay.current = true;
+        }
+      },
+      pause() {
+        resumeAfterSuspend.current =
+          pendingPlay.current || playerRef.current?.getPlayerState?.() === 1;
+        pendingPlay.current = false;
+        try { playerRef.current?.pauseVideo(); } catch {}
+      },
+      resume() {
+        if (!resumeAfterSuspend.current) return;
+        resumeAfterSuspend.current = false;
+        if (readyRef.current && playerRef.current) {
+          playerRef.current.playVideo();
+          fadeIn(volumeRef.current);
         } else {
           pendingPlay.current = true;
         }
       },
     }));
 
-    function fadeIn() {
+    function fadeIn(target = 25) {
       let current = 0;
-      const target = 25;
+      if (target <= 0) {
+        try { playerRef.current?.setVolume(0); } catch {}
+        return;
+      }
       const steps = 40;
       const stepSize = target / steps;
       const interval = setInterval(() => {
@@ -80,7 +105,7 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
               if (pendingPlay.current) {
                 pendingPlay.current = false;
                 e.target.playVideo();
-                fadeIn();
+                fadeIn(volumeRef.current);
               }
             },
           },
@@ -126,6 +151,7 @@ export const BackgroundMusic = forwardRef<BackgroundMusicHandle, BackgroundMusic
     const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = Number(e.target.value);
       setVolume(val);
+      volumeRef.current = val;
       if (readyRef.current && playerRef.current?.setVolume) {
         playerRef.current.setVolume(val);
       }
