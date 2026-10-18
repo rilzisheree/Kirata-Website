@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
@@ -32,8 +32,6 @@ export function MessageCard() {
   const [status, setStatus] = useState<Status>('idle');
   const [errorText, setErrorText] = useState('');
   const [remaining, setRemaining] = useState(getRemainingMs);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   // Countdown ticker
   useEffect(() => {
     if (remaining <= 0) return;
@@ -113,14 +111,6 @@ export function MessageCard() {
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Enter alone sends; Shift+Enter inserts a newline
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }
-
   const isRateLimited = status === 'rate_limited';
   const isSent = status === 'sent';
 
@@ -131,11 +121,6 @@ export function MessageCard() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      {/* Decorative icon */}
-      <div className="absolute top-0 right-0 p-4 opacity-[0.06] pointer-events-none select-none">
-        <Send size={64} />
-      </div>
-
       <div className="relative z-10">
         <h3 className="text-sm font-mono text-white/50 uppercase tracking-widest mb-4">
           send me a message
@@ -197,10 +182,8 @@ export function MessageCard() {
 
               <div className="relative">
                 <textarea
-                  ref={textareaRef}
                   value={message}
                   onChange={e => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
                   disabled={isBusy}
                   placeholder="say whatever"
                   rows={4}
@@ -248,10 +231,7 @@ export function MessageCard() {
                 )}
               </AnimatePresence>
 
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[10px] text-white/20 font-mono hidden sm:block">
-                  shift+enter for newline
-                </span>
+              <div className="flex items-center justify-end gap-3">
                 <motion.button
                   onClick={handleSend}
                   disabled={isBusy || !message.trim() || overLimit}

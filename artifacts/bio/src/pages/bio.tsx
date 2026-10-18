@@ -68,13 +68,13 @@ export default function BioPage() {
               initial="hidden" animate={s} variants={fade(0.1)}
             >
               <div className="relative mb-5 self-center lg:self-start">
-                <div className="absolute inset-[-10px] rounded-full avatar-ring z-0" />
+                <div className="absolute inset-[-6px] rounded-full avatar-ring z-0" />
                 <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-white/20 relative z-10 bg-black">
                   <img src="/avatar.jpg" alt="kirata" className="w-full h-full object-cover" />
                 </div>
               </div>
 
-              <h1 className="text-4xl font-display font-bold text-white mb-1 text-glow-cyan tracking-tight">
+              <h1 className="text-4xl font-display font-bold text-white mb-1 tracking-tight">
                 kirata
               </h1>
 

@@ -1,0 +1,1 @@
+- [Replit package firewall](replit-package-firewall.md) — When a pinned package tarball gets 403, check compatible newer releases before changing registries.

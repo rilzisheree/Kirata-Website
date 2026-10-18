@@ -131,48 +131,24 @@
   }
 }
 
-/* Custom Utilities for Cyber Vibe */
+/* Custom site utilities */
 @layer utilities {
   .glass-card {
-    @apply bg-white/[0.04] backdrop-blur-[10px] rounded-2xl shadow-lg transition-all duration-200;
-    border: 1px solid rgba(162, 167, 210, 0.12);
+    @apply bg-white/[0.025] rounded-xl transition-colors duration-200;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .glass-card:hover {
-    @apply bg-white/[0.06] -translate-y-1;
-    border-color: rgba(162, 167, 210, 0.22);
-    box-shadow: 0 8px 32px -8px rgba(162, 167, 210, 0.18);
+    @apply bg-white/[0.035];
+    border-color: rgba(255, 255, 255, 0.12);
   }
   .glass-pill {
-    @apply bg-white/[0.05] backdrop-blur-[8px] rounded-full flex items-center justify-center transition-all duration-200;
-    border: 1px solid rgba(162, 167, 210, 0.12);
+    @apply bg-white/[0.035] rounded-full flex items-center justify-center transition-colors duration-200;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   .glass-pill:hover {
-    background: rgba(162, 167, 210, 0.10);
-    border-color: rgba(162, 167, 210, 0.25);
-    @apply scale-105;
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
   }
-  
-  .text-glow {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-  }
-  .text-glow-cyan {
-    text-shadow: 0 0 24px rgba(162, 167, 210, 0.5);
-  }
-  
-  .blob-animate {
-    animation: blob-drift 25s infinite alternate ease-in-out;
-    will-change: transform;
-  }
-  
-  .float-animate {
-    animation: float 6s ease-in-out infinite;
-  }
-}
-
-@keyframes blob-drift {
-  0%   { transform: translate(0, 0) scale(1); }
-  50%  { transform: translate(20px, -30px) scale(1.05); }
-  100% { transform: translate(-10px, 15px) scale(0.97); }
 }
 
 @keyframes barBlink {
@@ -180,18 +156,6 @@
   50% { opacity: 0; }
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(162, 167, 210, 0.5); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(162, 167, 210, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(162, 167, 210, 0); }
-}
-
 .avatar-ring {
-  animation: pulse-ring 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(162, 167, 210, 0.25);
 }

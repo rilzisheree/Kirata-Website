@@ -13,7 +13,7 @@ const BOOT_LINES: { text: string; suffix?: string }[] = [
   { text: '> loading assets...', suffix: ' done' },
   { text: '> fetching presence data...', suffix: ' done' },
   { text: '> establishing connection...', suffix: ' done' },
-  { text: '> access granted.', suffix: ' done' },
+  { text: '> access granted.' },
 ];
 
 
@@ -71,8 +71,6 @@ function useTypingSequence(lines: string[], active: boolean, onDone: () => void)
 
 // ── Terminal card (boot phase only) ──────────────────────────────────────────
 function TerminalCard({ completedLines, currentLine }: { completedLines: string[]; currentLine: string }) {
-  const year = new Date().getFullYear();
-
   function renderLine(text: string, isCurrent?: boolean) {
     const match  = BOOT_LINES.find(l => l.suffix && text.startsWith(l.text));
     const base   = match ? text.slice(0, match.text.length) : text;
@@ -126,7 +124,7 @@ function TerminalCard({ completedLines, currentLine }: { completedLines: string[
       {/* Footer */}
       <div className="px-5 py-2.5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <span className="font-mono text-[11px] text-white/18 tracking-wide">
-          kirata's bio &nbsp;•&nbsp; {year}
+          kirata's bio
         </span>
       </div>
     </motion.div>

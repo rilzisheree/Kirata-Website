@@ -3,31 +3,7 @@ import { logger } from "../lib/logger";
 
 const router = Router();
 
-// In-memory rate limit store: ip → last sent timestamp (ms)
-const rateLimitStore = new Map<string, number>();
-const COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
-
 router.post("/message", async (req, res) => {
-  // Prefer x-forwarded-for (real user IP via Replit proxy) over socket address
-  const forwarded = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim();
-  const socketAddr = req.socket.remoteAddress ?? "unknown";
-  // Skip rate limiting for internal/loopback addresses (health checks, shell tests)
-  const isInternal = !forwarded && (socketAddr === "127.0.0.1" || socketAddr === "::1" || socketAddr === "::ffff:127.0.0.1");
-  const ip = forwarded || socketAddr;
-
-  // Rate limit check (skip for internal loopback — those are server-side tests)
-  const lastSent = isInternal ? undefined : rateLimitStore.get(ip);
-  if (lastSent !== undefined) {
-    const elapsed = Date.now() - lastSent;
-    if (elapsed < COOLDOWN_MS) {
-      const remaining = Math.ceil((COOLDOWN_MS - elapsed) / 1000 / 60);
-      return res.status(429).json({
-        error: "rate_limited",
-        retryAfterMinutes: remaining,
-      });
-    }
-  }
-
   const { message, name, attachmentUrl } = req.body as { message?: string; name?: string; attachmentUrl?: string };
 
   if (!message || typeof message !== "string" || message.trim().length === 0) {
@@ -62,7 +38,6 @@ router.post("/message", async (req, res) => {
         { name: "From", value: senderName, inline: true },
         ...(trimmedUrl ? [{ name: "Attachment", value: trimmedUrl, inline: false }] : []),
       ],
-      footer: { text: `ip: ${ip}` },
       timestamp: new Date().toISOString(),
     };
 
@@ -82,17 +57,6 @@ router.post("/message", async (req, res) => {
       const text = await webhookRes.text();
       logger.error({ status: webhookRes.status, body: text }, "Discord webhook failed");
       return res.status(502).json({ error: "Failed to deliver message." });
-    }
-
-    // Record the send time for rate limiting
-    rateLimitStore.set(ip, Date.now());
-
-    // Cleanup old entries every 1000 requests to prevent unbounded growth
-    if (rateLimitStore.size > 1000) {
-      const cutoff = Date.now() - COOLDOWN_MS;
-      for (const [key, ts] of rateLimitStore) {
-        if (ts < cutoff) rateLimitStore.delete(key);
-      }
     }
 
     return res.status(200).json({ ok: true });
