@@ -17,7 +17,7 @@ const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["sleeper", "chud", "valorant demon"];
 const DISCORD_USERNAME = "vkirata";
 const CINEMATIC_AUDIO_SRC =
-  import.meta.env.VITE_CINEMATIC_AUDIO_SRC || `${import.meta.env.BASE_URL}cinematic-audio.mp3`;
+  import.meta.env.VITE_CINEMATIC_AUDIO_SRC || `${import.meta.env.BASE_URL}cinematic-audio.m4a`;
 
 function fade(delay: number): Variants {
   return {
@@ -63,12 +63,17 @@ export default function BioPage() {
     if (!audio) {
       setCinematicAudioUnavailable(true);
     } else {
-      // Start muted during the site's fade to black; the cinematic fades it in
-      // once the opening line appears, after the overlay has fully covered the page.
       audio.pause();
       audio.volume = 0;
-      audio.currentTime = 0;
-      void audio.play().catch(() => setCinematicAudioUnavailable(true));
+      try {
+        if (audio.currentTime > 0) audio.currentTime = 0;
+      } catch {
+        setCinematicAudioUnavailable(true);
+      }
+      void audio.play().catch(() => {
+        audio.pause();
+        setCinematicAudioUnavailable(true);
+      });
     }
 
     setCinematicOpen(true);
@@ -101,7 +106,6 @@ export default function BioPage() {
         <CinematicExperience
           audioElement={cinematicAudioRef.current}
           audioUnavailable={cinematicAudioUnavailable}
-          onAudioUnavailable={() => setCinematicAudioUnavailable(true)}
           onClose={handleCinematicClose}
         />
       )}

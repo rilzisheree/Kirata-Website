@@ -1,15 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { CinematicEnvironment } from './CinematicEnvironment';
-import { JournalScene } from './JournalScene';
 import './cinematic-experience.css';
 
 export type CinematicPhase = 'opening' | 'dark' | 'to-light' | 'light' | 'ending' | 'exit';
 
+export interface CinematicTimeline {
+  clock: number;
+  phaseStartedAt: number;
+  cameraStepStartedAt: number;
+  openingReveal: number;
+  lightTransitionProgress: number;
+}
+
 interface CinematicExperienceProps {
   audioElement: HTMLAudioElement | null;
   audioUnavailable: boolean;
-  onAudioUnavailable: () => void;
   onClose: () => void;
 }
 
@@ -211,33 +217,39 @@ const LIGHT_BEATS: DialogueBeat[] = [
 ];
 
 const DARK_PRESS_COUNTS = [3, 3, 3, 3, 2, 1];
-const DARK_TO_LIGHT_CUE = 46.4;
+const DARK_TO_LIGHT_CUE = 53.5;
 const LIGHT_TRANSITION_SECONDS = 3.35;
 const OPENING_FADE_SECONDS = 1.6;
-const GOOD_LUCK_HOLD_SECONDS = 2.1;
 const ENDING_FADE_SECONDS = 7.4;
 const EXIT_FADE_SECONDS = 1.25;
 const CINEMATIC_AUDIO_VOLUME = 0.78;
 const AUDIO_END_FADE_SECONDS = 3.5;
+const REFERENCE_AUDIO_DURATION_SECONDS = 71.04;
+const SELECTED_AUDIO_DURATION_SECONDS = 92.929396;
+const DEFAULT_TIMELINE_SCALE =
+  SELECTED_AUDIO_DURATION_SECONDS / REFERENCE_AUDIO_DURATION_SECONDS;
 
 export function CinematicExperience({
   audioElement,
   audioUnavailable,
-  onAudioUnavailable,
   onClose,
 }: CinematicExperienceProps) {
   const prefersReducedMotion = useReducedMotion() ?? false;
   const [phase, setPhaseState] = useState<CinematicPhase>('opening');
   const [activeBeat, setActiveBeat] = useState<ActiveBeat | null>(null);
-  const [visibleCharacters, setVisibleCharacters] = useState(0);
   const [cameraStep, setCameraStep] = useState(0);
-  const [pressCount, setPressCount] = useState(0);
 
   const phaseRef = useRef<CinematicPhase>('opening');
   const phaseStartedAtRef = useRef(0);
   const activeBeatRef = useRef<ActiveBeat | null>(null);
-  const visibleCharactersRef = useRef(0);
   const currentClockRef = useRef(0);
+  const timelineRef = useRef<CinematicTimeline>({
+    clock: 0,
+    phaseStartedAt: 0,
+    cameraStepStartedAt: 0,
+    openingReveal: 0,
+    lightTransitionProgress: 0,
+  });
   const darkIndexRef = useRef(-1);
   const pendingDarkIndexRef = useRef<number | null>(null);
   const pressCountRef = useRef(0);
@@ -248,23 +260,50 @@ export function CinematicExperience({
   const exitStartVolumeRef = useRef(0);
   const audioUnavailableRef = useRef(audioUnavailable);
   const audioRef = useRef(audioElement);
-  const onAudioUnavailableRef = useRef(onAudioUnavailable);
   const onCloseRef = useRef(onClose);
+  const timelineScaleRef = useRef(DEFAULT_TIMELINE_SCALE);
   const containerRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   audioUnavailableRef.current = audioUnavailable;
   audioRef.current = audioElement;
-  onAudioUnavailableRef.current = onAudioUnavailable;
   onCloseRef.current = onClose;
 
+  useEffect(() => {
+    if (!audioElement) return;
+
+    const updateScale = () => {
+      if (Number.isFinite(audioElement.duration) && audioElement.duration > 0) {
+        timelineScaleRef.current =
+          audioElement.duration / REFERENCE_AUDIO_DURATION_SECONDS;
+      }
+    };
+
+    updateScale();
+    audioElement.addEventListener('loadedmetadata', updateScale);
+    audioElement.addEventListener('durationchange', updateScale);
+    return () => {
+      audioElement.removeEventListener('loadedmetadata', updateScale);
+      audioElement.removeEventListener('durationchange', updateScale);
+    };
+  }, [audioElement]);
+
   const activateBeat = useCallback((beat: DialogueBeat, startedAt: number) => {
-    const nextBeat = { ...beat, startedAt };
+    const scale = timelineScaleRef.current;
+    const nextBeat = {
+      ...beat,
+      cue: beat.cue * scale,
+      revealSeconds: beat.revealSeconds * scale,
+      startedAt,
+    };
     activeBeatRef.current = nextBeat;
-    visibleCharactersRef.current = 0;
     setActiveBeat(nextBeat);
-    setVisibleCharacters(0);
   }, []);
+
+  const cueAt = useCallback(
+    (beat: DialogueBeat) => beat.cue * timelineScaleRef.current,
+    [],
+  );
 
   const changePhase = useCallback((nextPhase: CinematicPhase, at: number) => {
     if (phaseRef.current === nextPhase) return;
@@ -274,6 +313,7 @@ export function CinematicExperience({
     }
     phaseRef.current = nextPhase;
     phaseStartedAtRef.current = at;
+    timelineRef.current.phaseStartedAt = at;
     setPhaseState(nextPhase);
   }, []);
 
@@ -290,8 +330,8 @@ export function CinematicExperience({
     const nextCount = pressCountRef.current + 1;
     pressCountRef.current = nextCount;
     cameraStepRef.current += 1;
-    setPressCount(nextCount);
     setCameraStep(cameraStepRef.current);
+    timelineRef.current.cameraStepStartedAt = clock;
     transitionLockUntilRef.current = clock + 0.46;
 
     if (nextCount >= DARK_PRESS_COUNTS[index] && index < DARK_BEATS.length - 1) {
@@ -369,44 +409,68 @@ export function CinematicExperience({
 
   useEffect(() => {
     let animationFrame = 0;
-    let previousFrameAt = performance.now();
-    let lastAudioTime = audioElement?.currentTime ?? 0;
-    let lastAudioProgressAt = previousFrameAt;
-    let audioTailStartedAt: number | null = null;
-    let audioTailClock = 0;
-    let unavailableWasReported = audioUnavailableRef.current;
+    let fallbackStartedAt: number | null = null;
+    let fallbackClockStart = 0;
 
     const tick = (now: number) => {
-      const delta = Math.min((now - previousFrameAt) / 1000, 0.05);
-      previousFrameAt = now;
-
       let clock: number;
-      if (audioElement && !audioUnavailableRef.current) {
-        if (audioElement.ended) {
-          if (audioTailStartedAt === null) {
-            audioTailStartedAt = now;
-            audioTailClock = audioElement.currentTime;
-          }
-          clock = audioTailClock + (now - audioTailStartedAt) / 1000;
-        } else {
-          audioTailStartedAt = null;
-          clock = audioElement.currentTime;
-          if (Math.abs(clock - lastAudioTime) > 0.015) {
-            lastAudioTime = clock;
-            lastAudioProgressAt = now;
-          } else if (!audioElement.paused && now - lastAudioProgressAt > 2600) {
-            if (!unavailableWasReported) {
-              unavailableWasReported = true;
-              onAudioUnavailableRef.current();
-            }
-          }
-        }
+      const audioCanDriveTimeline =
+        audioElement !== null
+        && !audioUnavailableRef.current
+        && audioElement.error === null
+        && !audioElement.ended;
+      if (audioCanDriveTimeline) {
+        clock = audioElement.currentTime;
       } else {
-        clock = currentClockRef.current + delta;
+        if (fallbackStartedAt === null) {
+          fallbackStartedAt = now;
+          fallbackClockStart = Math.max(
+            currentClockRef.current,
+            audioElement?.currentTime ?? 0,
+          );
+        }
+        clock = fallbackClockStart + (now - fallbackStartedAt) / 1000;
       }
       currentClockRef.current = clock;
+      timelineRef.current.clock = clock;
 
       const currentPhase = phaseRef.current;
+      timelineRef.current.openingReveal = Math.max(
+        0,
+        Math.min(clock / OPENING_FADE_SECONDS, 1),
+      );
+      timelineRef.current.lightTransitionProgress = currentPhase === 'to-light'
+        ? Math.max(
+          0,
+          Math.min(
+            (clock - phaseStartedAtRef.current) / LIGHT_TRANSITION_SECONDS,
+            1,
+          ),
+        )
+        : 0;
+      const endingFadeSeconds = prefersReducedMotion ? 0.45 : ENDING_FADE_SECONDS;
+      const exitFadeSeconds = prefersReducedMotion ? 0.45 : EXIT_FADE_SECONDS;
+      if (containerRef.current) {
+        if (currentPhase === 'ending') {
+          const fade = Math.max(
+            0,
+            Math.min((clock - phaseStartedAtRef.current) / endingFadeSeconds, 1),
+          );
+          containerRef.current.style.setProperty('--cinematic-ending-fade', `${fade}`);
+          containerRef.current.style.opacity = '1';
+        } else if (currentPhase === 'exit') {
+          const fade = Math.max(
+            0,
+            Math.min((clock - phaseStartedAtRef.current) / exitFadeSeconds, 1),
+          );
+          containerRef.current.style.setProperty('--cinematic-ending-fade', '1');
+          containerRef.current.style.opacity = `${1 - fade}`;
+        } else {
+          containerRef.current.style.setProperty('--cinematic-ending-fade', '0');
+          containerRef.current.style.opacity = '1';
+        }
+      }
+
       if (audioElement && !audioUnavailableRef.current) {
         if (currentPhase === 'opening' || currentPhase === 'dark' || currentPhase === 'to-light') {
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * Math.min(clock / OPENING_FADE_SECONDS, 1);
@@ -418,10 +482,10 @@ export function CinematicExperience({
           const remaining = Math.max(audioElement.duration - clock, 0);
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * Math.min(remaining / AUDIO_END_FADE_SECONDS, 1);
         } else if (currentPhase === 'ending') {
-          const progress = Math.min((clock - phaseStartedAtRef.current) / ENDING_FADE_SECONDS, 1);
+          const progress = Math.min((clock - phaseStartedAtRef.current) / endingFadeSeconds, 1);
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * (1 - progress);
         } else if (currentPhase === 'exit') {
-          const progress = Math.min((clock - phaseStartedAtRef.current) / EXIT_FADE_SECONDS, 1);
+          const progress = Math.min((clock - phaseStartedAtRef.current) / exitFadeSeconds, 1);
           audioElement.volume = exitStartVolumeRef.current * (1 - progress);
         } else {
           audioElement.volume = CINEMATIC_AUDIO_VOLUME;
@@ -429,15 +493,14 @@ export function CinematicExperience({
       }
 
       if (currentPhase === 'opening') {
-        const openingIndex = OPENING_BEATS.findLastIndex((beat) => clock >= beat.cue);
+        const openingIndex = OPENING_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
         if (openingIndex >= 0 && activeBeatRef.current?.id !== OPENING_BEATS[openingIndex].id) {
-          activateBeat(OPENING_BEATS[openingIndex], OPENING_BEATS[openingIndex].cue);
+          activateBeat(OPENING_BEATS[openingIndex], cueAt(OPENING_BEATS[openingIndex]));
         }
-        if (clock >= DARK_BEATS[0].cue && activeBeatRef.current?.id !== DARK_BEATS[0].id) {
+        if (clock >= cueAt(DARK_BEATS[0]) && activeBeatRef.current?.id !== DARK_BEATS[0].id) {
           darkIndexRef.current = 0;
           pressCountRef.current = 0;
-          setPressCount(0);
-          activateBeat(DARK_BEATS[0], DARK_BEATS[0].cue);
+          activateBeat(DARK_BEATS[0], cueAt(DARK_BEATS[0]));
         }
         const firstDarkBeat = activeBeatRef.current;
         if (
@@ -452,25 +515,31 @@ export function CinematicExperience({
           pendingDarkIndexRef.current = null;
           darkIndexRef.current = pendingIndex;
           pressCountRef.current = 0;
-          setPressCount(0);
           activateBeat(DARK_BEATS[pendingIndex], clock);
           transitionLockUntilRef.current = clock + 0.48;
         }
 
-        const finalDarkBeat = activeBeatRef.current;
+        const reachedFinalDarkBeat = darkIndexRef.current === DARK_BEATS.length - 1;
         if (
-          darkIndexRef.current === DARK_BEATS.length - 1
-          && finalDarkBeat?.id === DARK_BEATS[DARK_BEATS.length - 1].id
-          && clock >= Math.max(DARK_TO_LIGHT_CUE, finalDarkBeat.startedAt + finalDarkBeat.revealSeconds)
+          reachedFinalDarkBeat
+          && clock >= cueAt(LIGHT_BEATS[0])
+          && activeBeatRef.current?.id !== LIGHT_BEATS[0].id
         ) {
+          activateBeat(LIGHT_BEATS[0], cueAt(LIGHT_BEATS[0]));
+        }
+        if (reachedFinalDarkBeat && clock >= DARK_TO_LIGHT_CUE * timelineScaleRef.current) {
           changePhase('to-light', clock);
         }
       } else if (currentPhase === 'to-light') {
+        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
+        if (lightIndex >= 0 && activeBeatRef.current?.id !== LIGHT_BEATS[lightIndex].id) {
+          activateBeat(LIGHT_BEATS[lightIndex], cueAt(LIGHT_BEATS[lightIndex]));
+        }
         if (clock - phaseStartedAtRef.current >= LIGHT_TRANSITION_SECONDS) {
           changePhase('light', clock);
         }
       } else if (currentPhase === 'light') {
-        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= beat.cue);
+        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
         if (lightIndex >= 0 && activeBeatRef.current?.id !== LIGHT_BEATS[lightIndex].id) {
           activateBeat(LIGHT_BEATS[lightIndex], LIGHT_BEATS[lightIndex].cue);
         }
@@ -478,16 +547,16 @@ export function CinematicExperience({
         if (
           lightIndex === LIGHT_BEATS.length - 1
           && finalBeat?.id === LIGHT_BEATS[LIGHT_BEATS.length - 1].id
-          && clock >= finalBeat.startedAt + finalBeat.revealSeconds + GOOD_LUCK_HOLD_SECONDS
+          && clock >= finalBeat.startedAt
         ) {
-          changePhase('ending', clock);
+          changePhase('ending', finalBeat.startedAt);
         }
       } else if (currentPhase === 'ending') {
-        if (clock - phaseStartedAtRef.current >= ENDING_FADE_SECONDS) {
+        if (clock - phaseStartedAtRef.current >= endingFadeSeconds) {
           changePhase('exit', clock);
         }
       } else if (currentPhase === 'exit') {
-        if (clock - phaseStartedAtRef.current >= EXIT_FADE_SECONDS) {
+        if (clock - phaseStartedAtRef.current >= exitFadeSeconds) {
           onCloseRef.current();
           return;
         }
@@ -495,12 +564,25 @@ export function CinematicExperience({
 
       const beat = activeBeatRef.current;
       if (beat) {
+        const totalCharacters = Array.from(beat.text).length;
         const progress = Math.max(0, Math.min((clock - beat.startedAt) / beat.revealSeconds, 1));
-        const visible = Math.min(Array.from(beat.text).length, Math.floor(progress * Array.from(beat.text).length));
-        if (visible !== visibleCharactersRef.current) {
-          visibleCharactersRef.current = visible;
-          setVisibleCharacters(visible);
-        }
+        const arrivedCharacters = progress * totalCharacters;
+        const letterNodes = containerRef.current?.querySelectorAll<HTMLElement>(
+          '[data-cinematic-character]',
+        );
+        letterNodes?.forEach((letter) => {
+          const index = Number(letter.dataset.characterIndex);
+          const arrival = Math.max(0, Math.min(arrivedCharacters - index, 1));
+          const easedArrival = 1 - Math.pow(1 - arrival, 2.6);
+          const entryX = Number(letter.dataset.entryX);
+          const entryY = Number(letter.dataset.entryY);
+          const entryRotation = Number(letter.dataset.entryRotation);
+          letter.style.opacity = `${easedArrival}`;
+          letter.style.transform =
+            `translate3d(${entryX * (1 - easedArrival)}px, ${entryY * (1 - easedArrival)}px, 0) ` +
+            `rotate(${entryRotation * (1 - easedArrival)}deg) scale(${0.96 + easedArrival * 0.04})`;
+          letter.style.filter = `blur(${(1 - easedArrival) * 1.5}px)`;
+        });
       }
 
       animationFrame = window.requestAnimationFrame(tick);
@@ -508,7 +590,7 @@ export function CinematicExperience({
 
     animationFrame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [activateBeat, audioElement, changePhase]);
+  }, [activateBeat, audioElement, changePhase, cueAt, prefersReducedMotion]);
 
   const handleTouchAdvance = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return;
@@ -516,25 +598,13 @@ export function CinematicExperience({
     advanceRef.current();
   };
 
-  const characterCount = activeBeat ? Array.from(activeBeat.text).length : 0;
-  const revealedCharacters = Math.min(visibleCharacters, characterCount);
-  const showJournal = phase === 'ending'
-    || phase === 'exit'
-    || (
-      phase === 'light'
-      && activeBeat?.section === 'light'
-      && activeBeat.id !== LIGHT_BEATS[0].id
-    );
   const showDialogue = activeBeat !== null
-    && phase !== 'ending'
     && phase !== 'exit'
     && !(
-      phase === 'light'
-      && (activeBeat.section !== 'light' || activeBeat.id !== LIGHT_BEATS[0].id)
+      (phase === 'light' || phase === 'ending')
+      && activeBeat.section !== 'light'
     );
-  const accessibleText = showJournal
-    ? `${LIGHT_BEATS.map((beat) => beat.text.replace(/\n/g, ' ')).join(' ')} Edith`
-    : activeBeat?.text.replace(/\n/g, ' ') ?? '';
+  const accessibleText = activeBeat?.text.replace(/\n/g, ' ') ?? '';
 
   return (
     <div
@@ -552,16 +622,16 @@ export function CinematicExperience({
         phase={phase}
         cameraStep={cameraStep}
         reducedMotion={prefersReducedMotion}
+        timelineRef={timelineRef}
       />
       <div className="cinematic-experience__scene">
-        {showJournal && <JournalScene closed={phase === 'ending' || phase === 'exit'} />}
         {showDialogue && activeBeat && (
           <p
             key={activeBeat.id}
             className={[
               'cinematic-experience__copy',
               `cinematic-experience__copy--${activeBeat.placement}`,
-              activeBeat.section === 'light' ? 'cinematic-experience__copy--paper' : '',
+              activeBeat.section === 'light' ? 'cinematic-experience__copy--light' : '',
             ].filter(Boolean).join(' ')}
             data-testid="cinematic-dialogue"
             data-beat={activeBeat.id}
@@ -573,19 +643,36 @@ export function CinematicExperience({
             }}
             aria-hidden="true"
           >
-            {Array.from(activeBeat.text).map((character, index) => (
-              character === '\n'
-                ? <React.Fragment key={`${activeBeat.id}-${index}`}><br /></React.Fragment>
-                : (
-                  <span
-                    key={`${activeBeat.id}-${index}`}
-                    className="cinematic-experience__character"
-                    data-revealed={index < revealedCharacters}
-                  >
-                    {character === ' ' ? '\u00a0' : character}
-                  </span>
-                )
-            ))}
+            {Array.from(activeBeat.text).map((character, index) => {
+              if (character === '\n') {
+                return <React.Fragment key={`${activeBeat.id}-${index}`}><br /></React.Fragment>;
+              }
+              if (character === ' ') {
+                return ' ';
+              }
+
+              const entryOffsets = [
+                { x: -5, y: 13, rotation: -1.2 },
+                { x: 4, y: 10, rotation: 0.9 },
+                { x: 2, y: 15, rotation: -0.6 },
+                { x: -3, y: 11, rotation: 1.1 },
+              ];
+              const offset = entryOffsets[index % entryOffsets.length];
+
+              return (
+                <span
+                  key={`${activeBeat.id}-${index}`}
+                  className="cinematic-experience__character"
+                  data-cinematic-character
+                  data-character-index={index}
+                  data-entry-x={offset.x}
+                  data-entry-y={offset.y}
+                  data-entry-rotation={offset.rotation}
+                >
+                  {character}
+                </span>
+              );
+            })}
           </p>
         )}
         <span className="cinematic-experience__sr-only" aria-live="polite">
@@ -601,9 +688,6 @@ export function CinematicExperience({
           Audio could not be loaded. The story will continue silently.
         </p>
       )}
-      <span className="cinematic-experience__press-count" aria-hidden="true">
-        {phase === 'dark' && pressCount > 0 ? `${pressCount}` : ''}
-      </span>
     </div>
   );
 }
