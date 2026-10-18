@@ -48,7 +48,7 @@ const OPENING_BEATS: DialogueBeat[] = [
     section: 'opening',
     placement: 'intro',
     left: 50,
-    top: 41,
+    top: 31,
     width: 66,
     align: 'center',
   },
@@ -289,21 +289,13 @@ export function CinematicExperience({
   }, [audioElement]);
 
   const activateBeat = useCallback((beat: DialogueBeat, startedAt: number) => {
-    const scale = timelineScaleRef.current;
     const nextBeat = {
       ...beat,
-      cue: beat.cue * scale,
-      revealSeconds: beat.revealSeconds * scale,
       startedAt,
     };
     activeBeatRef.current = nextBeat;
     setActiveBeat(nextBeat);
   }, []);
-
-  const cueAt = useCallback(
-    (beat: DialogueBeat) => beat.cue * timelineScaleRef.current,
-    [],
-  );
 
   const changePhase = useCallback((nextPhase: CinematicPhase, at: number) => {
     if (phaseRef.current === nextPhase) return;
@@ -401,9 +393,6 @@ export function CinematicExperience({
       if (previousFocusRef.current?.isConnected) {
         previousFocusRef.current.focus({ preventScroll: true });
       }
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
     };
   }, [changePhase]);
 
@@ -420,13 +409,13 @@ export function CinematicExperience({
         && audioElement.error === null
         && !audioElement.ended;
       if (audioCanDriveTimeline) {
-        clock = audioElement.currentTime;
+        clock = audioElement.currentTime / timelineScaleRef.current;
       } else {
         if (fallbackStartedAt === null) {
           fallbackStartedAt = now;
           fallbackClockStart = Math.max(
             currentClockRef.current,
-            audioElement?.currentTime ?? 0,
+            (audioElement?.currentTime ?? 0) / timelineScaleRef.current,
           );
         }
         clock = fallbackClockStart + (now - fallbackStartedAt) / 1000;
@@ -479,7 +468,7 @@ export function CinematicExperience({
           && Number.isFinite(audioElement.duration)
           && audioElement.duration > 0
         ) {
-          const remaining = Math.max(audioElement.duration - clock, 0);
+          const remaining = Math.max(audioElement.duration - audioElement.currentTime, 0);
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * Math.min(remaining / AUDIO_END_FADE_SECONDS, 1);
         } else if (currentPhase === 'ending') {
           const progress = Math.min((clock - phaseStartedAtRef.current) / endingFadeSeconds, 1);
@@ -493,14 +482,14 @@ export function CinematicExperience({
       }
 
       if (currentPhase === 'opening') {
-        const openingIndex = OPENING_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
+        const openingIndex = OPENING_BEATS.findLastIndex((beat) => clock >= beat.cue);
         if (openingIndex >= 0 && activeBeatRef.current?.id !== OPENING_BEATS[openingIndex].id) {
-          activateBeat(OPENING_BEATS[openingIndex], cueAt(OPENING_BEATS[openingIndex]));
+          activateBeat(OPENING_BEATS[openingIndex], OPENING_BEATS[openingIndex].cue);
         }
-        if (clock >= cueAt(DARK_BEATS[0]) && activeBeatRef.current?.id !== DARK_BEATS[0].id) {
+        if (clock >= DARK_BEATS[0].cue && activeBeatRef.current?.id !== DARK_BEATS[0].id) {
           darkIndexRef.current = 0;
           pressCountRef.current = 0;
-          activateBeat(DARK_BEATS[0], cueAt(DARK_BEATS[0]));
+          activateBeat(DARK_BEATS[0], DARK_BEATS[0].cue);
         }
         const firstDarkBeat = activeBeatRef.current;
         if (
@@ -522,24 +511,24 @@ export function CinematicExperience({
         const reachedFinalDarkBeat = darkIndexRef.current === DARK_BEATS.length - 1;
         if (
           reachedFinalDarkBeat
-          && clock >= cueAt(LIGHT_BEATS[0])
+          && clock >= LIGHT_BEATS[0].cue
           && activeBeatRef.current?.id !== LIGHT_BEATS[0].id
         ) {
-          activateBeat(LIGHT_BEATS[0], cueAt(LIGHT_BEATS[0]));
+          activateBeat(LIGHT_BEATS[0], LIGHT_BEATS[0].cue);
         }
-        if (reachedFinalDarkBeat && clock >= DARK_TO_LIGHT_CUE * timelineScaleRef.current) {
+        if (reachedFinalDarkBeat && clock >= DARK_TO_LIGHT_CUE) {
           changePhase('to-light', clock);
         }
       } else if (currentPhase === 'to-light') {
-        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
+        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= beat.cue);
         if (lightIndex >= 0 && activeBeatRef.current?.id !== LIGHT_BEATS[lightIndex].id) {
-          activateBeat(LIGHT_BEATS[lightIndex], cueAt(LIGHT_BEATS[lightIndex]));
+          activateBeat(LIGHT_BEATS[lightIndex], LIGHT_BEATS[lightIndex].cue);
         }
         if (clock - phaseStartedAtRef.current >= LIGHT_TRANSITION_SECONDS) {
           changePhase('light', clock);
         }
       } else if (currentPhase === 'light') {
-        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= cueAt(beat));
+        const lightIndex = LIGHT_BEATS.findLastIndex((beat) => clock >= beat.cue);
         if (lightIndex >= 0 && activeBeatRef.current?.id !== LIGHT_BEATS[lightIndex].id) {
           activateBeat(LIGHT_BEATS[lightIndex], LIGHT_BEATS[lightIndex].cue);
         }
@@ -564,16 +553,18 @@ export function CinematicExperience({
 
       const beat = activeBeatRef.current;
       if (beat) {
-        const totalCharacters = Array.from(beat.text).length;
+        const totalCharacters = Array.from(beat.text).filter(
+          (character) => character !== '\n' && character !== ' ',
+        ).length;
         const progress = Math.max(0, Math.min((clock - beat.startedAt) / beat.revealSeconds, 1));
-        const arrivedCharacters = progress * totalCharacters;
+        const arrivedCharacters = progress * (totalCharacters + 2);
         const letterNodes = containerRef.current?.querySelectorAll<HTMLElement>(
           '[data-cinematic-character]',
         );
         letterNodes?.forEach((letter) => {
           const index = Number(letter.dataset.characterIndex);
-          const arrival = Math.max(0, Math.min(arrivedCharacters - index, 1));
-          const easedArrival = 1 - Math.pow(1 - arrival, 2.6);
+          const arrival = Math.max(0, Math.min((arrivedCharacters - index) / 2, 1));
+          const easedArrival = 1 - Math.pow(1 - arrival, 3);
           const entryX = Number(letter.dataset.entryX);
           const entryY = Number(letter.dataset.entryY);
           const entryRotation = Number(letter.dataset.entryRotation);
@@ -590,7 +581,7 @@ export function CinematicExperience({
 
     animationFrame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [activateBeat, audioElement, changePhase, cueAt, prefersReducedMotion]);
+  }, [activateBeat, audioElement, changePhase, prefersReducedMotion]);
 
   const handleTouchAdvance = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return;
@@ -651,23 +642,22 @@ export function CinematicExperience({
                 return ' ';
               }
 
-              const entryOffsets = [
-                { x: -5, y: 13, rotation: -1.2 },
-                { x: 4, y: 10, rotation: 0.9 },
-                { x: 2, y: 15, rotation: -0.6 },
-                { x: -3, y: 11, rotation: 1.1 },
-              ];
-              const offset = entryOffsets[index % entryOffsets.length];
+              const characterIndex = Array.from(activeBeat.text.slice(0, index))
+                .filter((previous) => previous !== '\n' && previous !== ' ')
+                .length;
+              const offsetX = Math.sin(characterIndex * 0.42) * 2;
+              const offsetY = 11 + Math.cos(characterIndex * 0.24) * 1.5;
+              const offsetRotation = Math.sin(characterIndex * 0.3) * 0.35;
 
               return (
                 <span
                   key={`${activeBeat.id}-${index}`}
                   className="cinematic-experience__character"
                   data-cinematic-character
-                  data-character-index={index}
-                  data-entry-x={offset.x}
-                  data-entry-y={offset.y}
-                  data-entry-rotation={offset.rotation}
+                  data-character-index={characterIndex}
+                  data-entry-x={offsetX}
+                  data-entry-y={offsetY}
+                  data-entry-rotation={offsetRotation}
                 >
                   {character}
                 </span>

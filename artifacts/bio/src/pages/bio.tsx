@@ -16,8 +16,7 @@ import { CinematicExperience } from '../components/cinematic/CinematicExperience
 const BADGES = ["chud", "htn", "grindmaxxing", "valorant demon"];
 const PHRASES = ["sleeper", "chud", "valorant demon"];
 const DISCORD_USERNAME = "vkirata";
-const CINEMATIC_AUDIO_SRC =
-  import.meta.env.VITE_CINEMATIC_AUDIO_SRC || `${import.meta.env.BASE_URL}cinematic-audio.m4a`;
+const CINEMATIC_AUDIO_SRC = `${import.meta.env.BASE_URL}cinematic-audio.m4a`;
 
 function fade(delay: number): Variants {
   return {
@@ -65,6 +64,8 @@ export default function BioPage() {
     } else {
       audio.pause();
       audio.volume = 0;
+      audio.loop = false;
+      audio.playbackRate = 1;
       try {
         if (audio.currentTime > 0) audio.currentTime = 0;
       } catch {
