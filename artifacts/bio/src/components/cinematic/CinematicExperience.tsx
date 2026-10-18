@@ -1,16 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { CinematicEnvironment } from './CinematicEnvironment';
+import {
+  FLOATING_LETTER_COUNT,
+  getDialogueGlyphSlot,
+  getFloatingLetterPose,
+} from './CinematicTunnel';
 import './cinematic-experience.css';
 
 export type CinematicPhase = 'opening' | 'dark' | 'to-light' | 'light' | 'ending' | 'exit';
 
 export interface CinematicTimeline {
   clock: number;
+  motionClock: number;
   phaseStartedAt: number;
   cameraStepStartedAt: number;
   openingReveal: number;
   lightTransitionProgress: number;
+  assemblyGlyphIndices: number[];
+  dialogueBounds: { left: number; top: number; right: number; bottom: number } | null;
 }
 
 interface CinematicExperienceProps {
@@ -245,10 +253,13 @@ export function CinematicExperience({
   const currentClockRef = useRef(0);
   const timelineRef = useRef<CinematicTimeline>({
     clock: 0,
+    motionClock: 0,
     phaseStartedAt: 0,
     cameraStepStartedAt: 0,
     openingReveal: 0,
     lightTransitionProgress: 0,
+    assemblyGlyphIndices: [],
+    dialogueBounds: null,
   });
   const darkIndexRef = useRef(-1);
   const pendingDarkIndexRef = useRef<number | null>(null);
@@ -400,8 +411,12 @@ export function CinematicExperience({
     let animationFrame = 0;
     let fallbackStartedAt: number | null = null;
     let fallbackClockStart = 0;
+    let motionStartedAt: number | null = null;
 
     const tick = (now: number) => {
+      if (motionStartedAt === null) motionStartedAt = now;
+      timelineRef.current.motionClock = (now - motionStartedAt) / 1000;
+
       let clock: number;
       const audioCanDriveTimeline =
         audioElement !== null
@@ -556,19 +571,68 @@ export function CinematicExperience({
         const totalCharacters = Array.from(beat.text).filter(
           (character) => character !== '\n' && character !== ' ',
         ).length;
+        const beatIsVisible = phaseRef.current !== 'exit'
+          && !(
+            (phaseRef.current === 'light' || phaseRef.current === 'ending')
+            && beat.section !== 'light'
+          );
+        const glyphIndices: number[] = [];
+        for (let index = 0; index < totalCharacters; index += 1) {
+          glyphIndices.push(getDialogueGlyphSlot(index, beat.id));
+        }
+        timelineRef.current.assemblyGlyphIndices = beatIsVisible
+          ? [...new Set(glyphIndices)]
+          : [];
+
+        const dialogue = containerRef.current?.querySelector<HTMLElement>(
+          '[data-testid="cinematic-dialogue"]',
+        );
+        if (beatIsVisible && dialogue?.dataset.beat === beat.id) {
+          const bounds = dialogue.getBoundingClientRect();
+          const padding = Math.max(28, Math.min(window.innerWidth, window.innerHeight) * 0.055);
+          timelineRef.current.dialogueBounds = {
+            left: bounds.left - padding,
+            top: bounds.top - padding,
+            right: bounds.right + padding,
+            bottom: bounds.bottom + padding,
+          };
+        } else {
+          timelineRef.current.dialogueBounds = null;
+        }
+
         const progress = Math.max(0, Math.min((clock - beat.startedAt) / beat.revealSeconds, 1));
-        const arrivedCharacters = progress * (totalCharacters + 2);
+        const arrivedCharacters = progress * (totalCharacters + 4);
         const letterNodes = containerRef.current?.querySelectorAll<HTMLElement>(
           '[data-cinematic-character]',
         );
         letterNodes?.forEach((letter) => {
           const index = Number(letter.dataset.characterIndex);
-          const arrival = Math.max(0, Math.min((arrivedCharacters - index) / 2, 1));
+          if (letter.dataset.originReady !== 'true') {
+            const transform = letter.style.transform;
+            letter.style.transform = 'none';
+            const target = letter.getBoundingClientRect();
+            letter.style.transform = transform;
+            const glyphIndex = Number(letter.dataset.glyphIndex);
+            const source = getFloatingLetterPose(
+              glyphIndex,
+              timelineRef.current.motionClock,
+              window.innerWidth,
+              window.innerHeight,
+              cameraStepRef.current,
+              prefersReducedMotion,
+            );
+            letter.dataset.entryX = `${source.x - (target.left + target.width / 2)}`;
+            letter.dataset.entryY = `${source.y - (target.top + target.height / 2)}`;
+            letter.dataset.entryRotation = `${source.rotation * (180 / Math.PI)}`;
+            letter.dataset.originReady = 'true';
+          }
+
+          const arrival = Math.max(0, Math.min((arrivedCharacters - index) / 4, 1));
           const easedArrival = 1 - Math.pow(1 - arrival, 3);
           const entryX = Number(letter.dataset.entryX);
           const entryY = Number(letter.dataset.entryY);
           const entryRotation = Number(letter.dataset.entryRotation);
-          letter.style.opacity = `${easedArrival}`;
+          letter.style.opacity = `${0.28 + easedArrival * 0.72}`;
           letter.style.transform =
             `translate3d(${entryX * (1 - easedArrival)}px, ${entryY * (1 - easedArrival)}px, 0) ` +
             `rotate(${entryRotation * (1 - easedArrival)}deg) scale(${0.96 + easedArrival * 0.04})`;
@@ -634,35 +698,33 @@ export function CinematicExperience({
             }}
             aria-hidden="true"
           >
-            {Array.from(activeBeat.text).map((character, index) => {
-              if (character === '\n') {
-                return <React.Fragment key={`${activeBeat.id}-${index}`}><br /></React.Fragment>;
-              }
-              if (character === ' ') {
-                return ' ';
-              }
+            {(() => {
+              let characterIndex = 0;
+              return Array.from(activeBeat.text).map((character, index) => {
+                if (character === '\n') {
+                  return (
+                    <React.Fragment key={`${activeBeat.id}-${index}`}>
+                      <br />
+                    </React.Fragment>
+                  );
+                }
+                if (character === ' ') return ' ';
 
-              const characterIndex = Array.from(activeBeat.text.slice(0, index))
-                .filter((previous) => previous !== '\n' && previous !== ' ')
-                .length;
-              const offsetX = Math.sin(characterIndex * 0.42) * 2;
-              const offsetY = 11 + Math.cos(characterIndex * 0.24) * 1.5;
-              const offsetRotation = Math.sin(characterIndex * 0.3) * 0.35;
-
-              return (
-                <span
-                  key={`${activeBeat.id}-${index}`}
-                  className="cinematic-experience__character"
-                  data-cinematic-character
-                  data-character-index={characterIndex}
-                  data-entry-x={offsetX}
-                  data-entry-y={offsetY}
-                  data-entry-rotation={offsetRotation}
-                >
-                  {character}
-                </span>
-              );
-            })}
+                const currentCharacterIndex = characterIndex;
+                characterIndex += 1;
+                return (
+                  <span
+                    key={`${activeBeat.id}-${index}`}
+                    className="cinematic-experience__character"
+                    data-cinematic-character
+                    data-character-index={currentCharacterIndex}
+                    data-glyph-index={getDialogueGlyphSlot(currentCharacterIndex, activeBeat.id)}
+                  >
+                    {character}
+                  </span>
+                );
+              });
+            })()}
           </p>
         )}
         <span className="cinematic-experience__sr-only" aria-live="polite">

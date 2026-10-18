@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type { CinematicPhase, CinematicTimeline } from './CinematicExperience';
+import {
+  FLOATING_LETTER_COUNT,
+  getFloatingLetterPose,
+} from './CinematicTunnel';
 
 interface CinematicEnvironmentProps {
   phase: CinematicPhase;
@@ -19,18 +23,6 @@ interface PurpleFrame {
   ringOpacity: number;
 }
 
-interface EnvironmentalLetter {
-  character: string;
-  start: number;
-  duration: number;
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-  size: number;
-  rotation: number;
-}
-
 const PURPLE_FRAMES: PurpleFrame[] = [
   { time: 0, x: 0.2, y: 0.29, aura: 0.34, brightness: 0.58, core: 0, rings: 0, ringOpacity: 0 },
   { time: 6, x: 0.49, y: 0.44, aura: 0.1, brightness: 0.08, core: 0, rings: 0, ringOpacity: 0 },
@@ -45,13 +37,6 @@ const PURPLE_FRAMES: PurpleFrame[] = [
   { time: 60, x: 0.5, y: 0.54, aura: 0.7, brightness: 1, core: 0.037, rings: 0.34, ringOpacity: 0.22 },
   { time: 66, x: 0.5, y: 0.54, aura: 0.78, brightness: 1, core: 0.05, rings: 0.43, ringOpacity: 0.24 },
   { time: 70, x: 0.5, y: 0.54, aura: 0.8, brightness: 1, core: 0.052, rings: 0.45, ringOpacity: 0.24 },
-];
-
-const ENVIRONMENTAL_LETTERS: EnvironmentalLetter[] = [
-  { character: 'W', start: 16.2, duration: 8.4, fromX: 0.95, fromY: -0.08, toX: 0.85, toY: 0.16, size: 0.12, rotation: 0.42 },
-  { character: 'I', start: 23.5, duration: 10, fromX: 0.08, fromY: 0.08, toX: 0.2, toY: 0.3, size: 0.08, rotation: -0.34 },
-  { character: 'A', start: 43, duration: 12, fromX: 0.91, fromY: 0.16, toX: 0.75, toY: 0.34, size: 0.1, rotation: 0.6 },
-  { character: 'E', start: 53, duration: 13, fromX: 0.17, fromY: -0.04, toX: 0.3, toY: 0.18, size: 0.07, rotation: -0.48 },
 ];
 
 const clamp = (value: number, min: number, max: number) =>
@@ -79,6 +64,108 @@ function readPurpleFrame(time: number): PurpleFrame {
     rings: mix('rings'),
     ringOpacity: mix('ringOpacity'),
   };
+}
+
+function drawTunnel(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  centerX: number,
+  centerY: number,
+  scene: PurpleFrame,
+  motionTime: number,
+  cameraStep: number,
+  reducedMotion: boolean,
+) {
+  const minDimension = Math.min(width, height);
+  const ringCount = 16;
+  const sliceCount = 12;
+  const flowSpeed = reducedMotion ? 0.018 : 0.052;
+  const phase = ((motionTime * flowSpeed + cameraStep * 0.04) % 1 + 1) % 1;
+  const rings = Array.from({ length: ringCount }, (_, index) => {
+    const depth = (index + phase) / ringCount;
+    const perspective = Math.pow(depth, 1.62);
+    return {
+      depth,
+      radiusX: minDimension * (0.018 + perspective * 1.03),
+      radiusY: minDimension * (0.014 + perspective * 0.72),
+    };
+  });
+
+  context.save();
+  context.globalCompositeOperation = 'source-over';
+
+  for (let layer = 0; layer < rings.length - 1; layer += 1) {
+    const far = rings[layer];
+    const near = rings[layer + 1];
+
+    for (let slice = 0; slice < sliceCount; slice += 1) {
+      const startAngle = (slice / sliceCount) * Math.PI * 2;
+      const endAngle = ((slice + 1) / sliceCount) * Math.PI * 2;
+      const shimmer = 0.5 + 0.5 * Math.sin(slice * 2.1 + layer * 0.73 + motionTime * 0.4);
+      const alpha = (0.025 + near.depth * 0.065 + shimmer * 0.018) * scene.brightness;
+      const alternate = (slice + layer) % 3 === 0;
+
+      context.beginPath();
+      context.ellipse(centerX, centerY, near.radiusX, near.radiusY, 0, startAngle, endAngle);
+      context.lineTo(
+        centerX + Math.cos(endAngle) * far.radiusX,
+        centerY + Math.sin(endAngle) * far.radiusY,
+      );
+      context.ellipse(
+        centerX,
+        centerY,
+        far.radiusX,
+        far.radiusY,
+        0,
+        endAngle,
+        startAngle,
+        true,
+      );
+      context.closePath();
+      context.fillStyle = alternate
+        ? `rgba(98, 35, 148, ${alpha})`
+        : `rgba(49, 14, 87, ${alpha * 1.35})`;
+      context.fill();
+    }
+  }
+
+  context.globalCompositeOperation = 'screen';
+  for (let index = 0; index < rings.length; index += 1) {
+    const ring = rings[index];
+    const pulse = 0.8 + Math.sin(motionTime * 0.52 - index * 0.48) * 0.2;
+    context.beginPath();
+    context.ellipse(centerX, centerY, ring.radiusX, ring.radiusY, 0, 0, Math.PI * 2);
+    context.strokeStyle =
+      `rgba(177, 104, 255, ${(0.035 + ring.depth * 0.15) * scene.brightness * pulse})`;
+    context.lineWidth = 0.75 + ring.depth * Math.max(1, minDimension * 0.004);
+    context.shadowColor = '#a84aff';
+    context.shadowBlur = 1 + ring.depth * minDimension * 0.018;
+    context.stroke();
+  }
+
+  context.shadowBlur = 0;
+  const railCount = 10;
+  for (let rail = 0; rail < railCount; rail += 1) {
+    const baseAngle = (rail / railCount) * Math.PI * 2;
+    context.beginPath();
+
+    for (let index = 0; index < rings.length; index += 1) {
+      const ring = rings[index];
+      const sway = Math.sin(ring.depth * 4 + motionTime * 0.22 + rail) * ring.depth * 0.075;
+      const angle = baseAngle + sway;
+      const x = centerX + Math.cos(angle) * ring.radiusX;
+      const y = centerY + Math.sin(angle) * ring.radiusY;
+      if (index === 0) context.moveTo(x, y);
+      else context.lineTo(x, y);
+    }
+
+    context.strokeStyle = `rgba(202, 145, 255, ${0.09 * scene.brightness})`;
+    context.lineWidth = 0.8 + Math.sin(baseAngle * 3) * 0.25;
+    context.stroke();
+  }
+
+  context.restore();
 }
 
 export function CinematicEnvironment({
@@ -112,7 +199,8 @@ export function CinematicEnvironment({
     const draw = () => {
       const state = stateRef.current;
       const timeline = timelineRef.current;
-      const time = timeline.clock;
+      const sceneTime = timeline.clock;
+      const motionTime = timeline.motionClock;
 
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       context.globalAlpha = 1;
@@ -129,71 +217,71 @@ export function CinematicEnvironment({
       context.fillStyle = '#020106';
       context.fillRect(0, 0, width, height);
 
-      const scene = readPurpleFrame(time);
+      const scene = readPurpleFrame(sceneTime);
       const centerX = width * scene.x;
       const centerY = height * scene.y;
       const minDimension = Math.min(width, height);
       const reveal = state.phase === 'opening' ? timeline.openingReveal : 1;
-      const travel = state.reducedMotion
-        ? state.cameraStep
-        : state.cameraStep === 0
-          ? 0
-          : state.cameraStep - 1 + clamp(
-            (time - timeline.cameraStepStartedAt) / 0.42,
-            0,
-            1,
-          );
-
-      context.globalAlpha = reveal;
-
-      const auraRadius = minDimension * scene.aura * (1 + Math.min(travel, 5) * 0.025);
-      const aura = context.createRadialGradient(
+      const tunnelGlow = context.createRadialGradient(
         centerX,
         centerY,
-        Math.max(1, minDimension * 0.006),
+        Math.max(1, minDimension * 0.012),
         centerX,
         centerY,
-        Math.max(1, auraRadius),
+        minDimension * 0.88,
       );
-      aura.addColorStop(0, `rgba(193, 96, 255, ${0.42 * scene.brightness})`);
-      aura.addColorStop(0.2, `rgba(130, 35, 206, ${0.32 * scene.brightness})`);
-      aura.addColorStop(0.54, `rgba(68, 14, 128, ${0.2 * scene.brightness})`);
-      aura.addColorStop(1, 'rgba(14, 4, 31, 0)');
-      context.fillStyle = aura;
+      tunnelGlow.addColorStop(0, `rgba(126, 42, 199, ${0.28 * scene.brightness})`);
+      tunnelGlow.addColorStop(0.3, `rgba(69, 22, 121, ${0.22 * scene.brightness})`);
+      tunnelGlow.addColorStop(0.72, `rgba(29, 9, 55, ${0.13 * scene.brightness})`);
+      tunnelGlow.addColorStop(1, 'rgba(7, 3, 14, 0)');
+      context.globalAlpha = reveal;
+      context.fillStyle = tunnelGlow;
       context.fillRect(0, 0, width, height);
 
-      if (scene.rings > 0) {
-        const ringRadius = minDimension * scene.rings;
-        context.save();
-        context.globalCompositeOperation = 'screen';
-        for (let ring = 1; ring <= 5; ring += 1) {
-          const radius = ringRadius * ring * 0.205;
-          const alpha = scene.ringOpacity * (1 - (ring - 1) * 0.14);
-          context.beginPath();
-          context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-          context.strokeStyle = `rgba(181, 47, 246, ${alpha})`;
-          context.lineWidth = Math.max(1, minDimension * 0.0018);
-          context.stroke();
+      drawTunnel(
+        context,
+        width,
+        height,
+        centerX,
+        centerY,
+        scene,
+        motionTime,
+        state.cameraStep,
+        state.reducedMotion,
+      );
+
+      const reservedLetters = new Set(timeline.assemblyGlyphIndices);
+      const bounds = timeline.dialogueBounds;
+      for (let index = 0; index < FLOATING_LETTER_COUNT; index += 1) {
+        if (reservedLetters.has(index)) continue;
+        const letter = getFloatingLetterPose(
+          index,
+          motionTime,
+          width,
+          height,
+          state.cameraStep,
+          state.reducedMotion,
+        );
+        if (
+          bounds
+          && letter.x >= bounds.left
+          && letter.x <= bounds.right
+          && letter.y >= bounds.top
+          && letter.y <= bounds.bottom
+        ) {
+          continue;
         }
-        context.restore();
-      }
-
-      for (const letter of ENVIRONMENTAL_LETTERS) {
-        const progress = clamp((time - letter.start) / letter.duration, 0, 1);
-        if (progress <= 0 || progress >= 1) continue;
-        const ease = progress * progress * (3 - 2 * progress);
-        const x = width * (letter.fromX + (letter.toX - letter.fromX) * ease);
-        const y = height * (letter.fromY + (letter.toY - letter.fromY) * ease);
-        const size = minDimension * letter.size * (0.85 + progress * 0.45);
-        const alpha = reveal * Math.sin(Math.PI * progress) * 0.34;
 
         context.save();
-        context.translate(x, y);
-        context.rotate(letter.rotation * (1 - progress * 0.35));
-        context.font = `600 ${size}px "Patrick Hand", cursive`;
+        context.globalAlpha = letter.opacity * (0.45 + scene.brightness * 0.55) * reveal;
+        context.translate(letter.x, letter.y);
+        context.rotate(letter.rotation);
+        context.font = `600 ${letter.size}px "Patrick Hand", cursive`;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillStyle = `rgba(5, 1, 13, ${alpha})`;
+        context.fillStyle = letter.color;
+        context.shadowColor = letter.color;
+        context.shadowBlur = Math.min(letter.size * 0.24, minDimension * 0.02);
         context.fillText(letter.character, 0, 0);
         context.restore();
       }
