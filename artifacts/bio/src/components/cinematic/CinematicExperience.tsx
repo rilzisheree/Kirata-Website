@@ -30,6 +30,8 @@ const DIALOGUE = [
 // Adjust these values to tune each line against the final audio edit.
 const CUE_SHEET_SECONDS = [0.5, 12.5, 16.5, 20.5, 24.5, 28.5, 32.5, 48.5, 50.5, 52.5, 54.5, 56.5];
 const DARK_PRESS_COUNTS = [3, 3, 3, 3, 2, 1];
+const CINEMATIC_AUDIO_VOLUME = 0.78;
+const AUDIO_FADE_IN_MS = 1200;
 const DARK_TO_LIGHT_DELAY_MS = 4100;
 const LIGHT_ENDING_HOLD_MS = 5200;
 const ENDING_DIM_MS = 7600;
@@ -53,6 +55,7 @@ export function CinematicExperience({
   const transitioningRef = useRef(true);
   const heldSpaceRef = useRef(false);
   const closingRef = useRef(false);
+  const audioFadeInStartedRef = useRef(false);
   const appliedCueRef = useRef('');
   const containerRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -111,11 +114,6 @@ export function CinematicExperience({
       return;
     }
 
-    if (currentPhase === 'light') {
-      if (currentIndex >= DIALOGUE.length - 1) return;
-      setZoomStep((step) => step + 1);
-      activateLine(currentIndex + 1);
-    }
   }, [activateLine]);
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
@@ -213,6 +211,19 @@ export function CinematicExperience({
     appliedCueRef.current = cueKey;
     if (!audioElement || audioUnavailable) return;
 
+    if (currentPhase === 'dark' && currentIndex === 0 && !audioFadeInStartedRef.current) {
+      audioFadeInStartedRef.current = true;
+      audioElement.volume = 0;
+      const fadeStartedAt = performance.now();
+      const fadeTimer = window.setInterval(() => {
+        const progress = Math.min((performance.now() - fadeStartedAt) / AUDIO_FADE_IN_MS, 1);
+        audioElement.volume = CINEMATIC_AUDIO_VOLUME * progress;
+        if (progress >= 1) {
+          window.clearInterval(fadeTimer);
+        }
+      }, 40);
+    }
+
     const cue = CUE_SHEET_SECONDS[currentIndex];
     try {
       if (Number.isFinite(cue) && Math.abs(audioElement.currentTime - cue) > 0.35) {
@@ -239,6 +250,43 @@ export function CinematicExperience({
       }, prefersReducedMotion ? 180 : 3300);
     }, prefersReducedMotion ? 500 : DARK_TO_LIGHT_DELAY_MS);
   }, [activateLine, lineIndex, phase, prefersReducedMotion, schedule, updatePhase]);
+
+  useEffect(() => {
+    if (phase !== 'light' || lineIndex < 7 || lineIndex >= DIALOGUE.length - 1) return;
+
+    const nextIndex = lineIndex + 1;
+    const nextCue = CUE_SHEET_SECONDS[nextIndex];
+    const currentCue = CUE_SHEET_SECONDS[lineIndex];
+    const audio = audioRef.current;
+    let advanced = false;
+
+    const advanceOnce = () => {
+      if (advanced || closingRef.current) return;
+      advanced = true;
+      activateLine(nextIndex);
+    };
+    const advanceAtAudioCue = () => {
+      if (!audio || audio.currentTime >= nextCue - 0.12) advanceOnce();
+    };
+
+    if (audio && !audioUnavailable) {
+      audio.addEventListener('timeupdate', advanceAtAudioCue);
+      audio.addEventListener('seeked', advanceAtAudioCue);
+    }
+
+    // Keep the story moving if audio is unavailable or playback stalls.
+    const fallbackDelay = Math.max(250, (nextCue - currentCue) * 1000 + 500);
+    const fallbackTimer = schedule(advanceOnce, fallbackDelay);
+
+    return () => {
+      if (audio && !audioUnavailable) {
+        audio.removeEventListener('timeupdate', advanceAtAudioCue);
+        audio.removeEventListener('seeked', advanceAtAudioCue);
+      }
+      clearTimeout(fallbackTimer);
+      timerRefs.current.delete(fallbackTimer);
+    };
+  }, [activateLine, audioUnavailable, lineIndex, phase, schedule]);
 
   useEffect(() => {
     if (phase !== 'light' || lineIndex !== DIALOGUE.length - 1) return;
