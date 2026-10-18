@@ -65,6 +65,7 @@ export default function BioPage() {
     } else {
       // Start muted during the site's fade to black; the cinematic fades it in
       // once the opening line appears, after the overlay has fully covered the page.
+      audio.pause();
       audio.volume = 0;
       audio.currentTime = 0;
       void audio.play().catch(() => setCinematicAudioUnavailable(true));
@@ -93,6 +94,7 @@ export default function BioPage() {
         ref={cinematicAudioRef}
         src={CINEMATIC_AUDIO_SRC}
         preload="auto"
+        onError={() => setCinematicAudioUnavailable(true)}
         aria-hidden="true"
       />
       {cinematicOpen && (

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { CinematicEnvironment } from './CinematicEnvironment';
+import { JournalScene } from './JournalScene';
 import './cinematic-experience.css';
 
 export type CinematicPhase = 'opening' | 'dark' | 'to-light' | 'light' | 'ending' | 'exit';
@@ -217,6 +218,7 @@ const GOOD_LUCK_HOLD_SECONDS = 2.1;
 const ENDING_FADE_SECONDS = 7.4;
 const EXIT_FADE_SECONDS = 1.25;
 const CINEMATIC_AUDIO_VOLUME = 0.78;
+const AUDIO_END_FADE_SECONDS = 3.5;
 
 export function CinematicExperience({
   audioElement,
@@ -370,6 +372,8 @@ export function CinematicExperience({
     let previousFrameAt = performance.now();
     let lastAudioTime = audioElement?.currentTime ?? 0;
     let lastAudioProgressAt = previousFrameAt;
+    let audioTailStartedAt: number | null = null;
+    let audioTailClock = 0;
     let unavailableWasReported = audioUnavailableRef.current;
 
     const tick = (now: number) => {
@@ -378,14 +382,23 @@ export function CinematicExperience({
 
       let clock: number;
       if (audioElement && !audioUnavailableRef.current) {
-        clock = audioElement.currentTime;
-        if (clock > lastAudioTime + 0.015) {
-          lastAudioTime = clock;
-          lastAudioProgressAt = now;
-        } else if (!audioElement.paused && now - lastAudioProgressAt > 2600) {
-          if (!unavailableWasReported) {
-            unavailableWasReported = true;
-            onAudioUnavailableRef.current();
+        if (audioElement.ended) {
+          if (audioTailStartedAt === null) {
+            audioTailStartedAt = now;
+            audioTailClock = audioElement.currentTime;
+          }
+          clock = audioTailClock + (now - audioTailStartedAt) / 1000;
+        } else {
+          audioTailStartedAt = null;
+          clock = audioElement.currentTime;
+          if (Math.abs(clock - lastAudioTime) > 0.015) {
+            lastAudioTime = clock;
+            lastAudioProgressAt = now;
+          } else if (!audioElement.paused && now - lastAudioProgressAt > 2600) {
+            if (!unavailableWasReported) {
+              unavailableWasReported = true;
+              onAudioUnavailableRef.current();
+            }
           }
         }
       } else {
@@ -397,6 +410,13 @@ export function CinematicExperience({
       if (audioElement && !audioUnavailableRef.current) {
         if (currentPhase === 'opening' || currentPhase === 'dark' || currentPhase === 'to-light') {
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * Math.min(clock / OPENING_FADE_SECONDS, 1);
+        } else if (
+          (currentPhase === 'light' || currentPhase === 'ending')
+          && Number.isFinite(audioElement.duration)
+          && audioElement.duration > 0
+        ) {
+          const remaining = Math.max(audioElement.duration - clock, 0);
+          audioElement.volume = CINEMATIC_AUDIO_VOLUME * Math.min(remaining / AUDIO_END_FADE_SECONDS, 1);
         } else if (currentPhase === 'ending') {
           const progress = Math.min((clock - phaseStartedAtRef.current) / ENDING_FADE_SECONDS, 1);
           audioElement.volume = CINEMATIC_AUDIO_VOLUME * (1 - progress);
@@ -498,6 +518,23 @@ export function CinematicExperience({
 
   const characterCount = activeBeat ? Array.from(activeBeat.text).length : 0;
   const revealedCharacters = Math.min(visibleCharacters, characterCount);
+  const showJournal = phase === 'ending'
+    || phase === 'exit'
+    || (
+      phase === 'light'
+      && activeBeat?.section === 'light'
+      && activeBeat.id !== LIGHT_BEATS[0].id
+    );
+  const showDialogue = activeBeat !== null
+    && phase !== 'ending'
+    && phase !== 'exit'
+    && !(
+      phase === 'light'
+      && (activeBeat.section !== 'light' || activeBeat.id !== LIGHT_BEATS[0].id)
+    );
+  const accessibleText = showJournal
+    ? `${LIGHT_BEATS.map((beat) => beat.text.replace(/\n/g, ' ')).join(' ')} Edith`
+    : activeBeat?.text.replace(/\n/g, ' ') ?? '';
 
   return (
     <div
@@ -517,7 +554,8 @@ export function CinematicExperience({
         reducedMotion={prefersReducedMotion}
       />
       <div className="cinematic-experience__scene">
-        {activeBeat && phase !== 'exit' && (
+        {showJournal && <JournalScene closed={phase === 'ending' || phase === 'exit'} />}
+        {showDialogue && activeBeat && (
           <p
             key={activeBeat.id}
             className={[
@@ -551,7 +589,7 @@ export function CinematicExperience({
           </p>
         )}
         <span className="cinematic-experience__sr-only" aria-live="polite">
-          {activeBeat?.text.replace(/\n/g, ' ') ?? ''}
+          {accessibleText}
         </span>
       </div>
       {audioUnavailable && (

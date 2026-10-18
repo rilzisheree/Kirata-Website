@@ -1,1 +1,2 @@
 - [Replit package firewall](replit-package-firewall.md) — When a pinned package tarball gets 403, check compatible newer releases before changing registries.
+- [Bio-site cinematic scope](bio-cinematic-scope.md) — Keep story-sequence work isolated from the rest of the personal site.
